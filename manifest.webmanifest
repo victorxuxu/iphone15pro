@@ -1,0 +1,15 @@
+{
+  "name": "iPhone 15 Pro 动态拆解",
+  "short_name": "15 Pro 拆解",
+  "description": "iPhone 15 Pro 可交互动态拆解图：手动/一键拆解、元件识别与说明书",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0b0f",
+  "theme_color": "#0b0b0f",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

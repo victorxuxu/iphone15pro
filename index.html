@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="mlj1NHf3m0ZREY9vXgEAfU">
+<head data-page-node-id="CR7WBA6EEojRsYjRP5WP7m">
+<meta charset="UTF-8" data-page-node-id="hnWBe3iQNzv9y8MSptRdbU">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="FzWl8HBlgGEYrXKDloFcHP">
+<title>iPhone 15 Pro · 动态拆解</title>
+<meta name="theme-color" content="#0b0b0f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-512.png">
+<style>
+:root{--bg:#0b0b0f;--panel:rgba(28,28,34,.78);--line:rgba(255,255,255,.12);--txt:#f2f2f4;--mut:#9a9aa6;--accent:#0a84ff;--accent2:#5e5ce6;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;}
+#scene{position:fixed;inset:0;}
+#hud{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:12px;z-index:5;width:max-content;}
+.btn{border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:var(--txt);padding:13px 26px;border-radius:14px;font-size:15px;font-weight:500;cursor:pointer;transition:.2s;user-select:none;white-space:nowrap;}
+.btn:active{transform:scale(.96);}
+.btn.primary{background:var(--accent);border-color:transparent;}
+.btn.ghost{color:var(--mut);}
+#title{position:fixed;left:22px;top:20px;z-index:5;font-size:14px;font-weight:600;letter-spacing:.5px;}
+#title small{display:block;font-weight:400;color:var(--mut);font-size:12px;margin-top:3px;}
+#hint{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);color:var(--mut);font-size:12px;z-index:5;transition:.3s;}
+/* 启动兜底：资源加载不出来时给可读提示，而不是白屏 */
+#boot{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;max-width:86vw;color:var(--mut);font-size:13px;line-height:1.9;text-align:center;pointer-events:none;transition:opacity .45s;}
+#boot.gone{opacity:0;}
+#boot b{color:var(--accent);}
+/* 非安全上下文（http + 局域网 IP）的提示条：此时浏览器不提供 Service Worker，离线必然不可用 */
+#net{position:fixed;left:14px;right:14px;top:64px;z-index:6;display:none;background:rgba(255,159,10,.13);border:1px solid rgba(255,159,10,.38);color:#ffb340;font-size:12px;line-height:1.55;padding:8px 12px;border-radius:10px;text-align:center;}
+#net b{color:#ffd08a;}
+@media(max-width:640px){#net{top:58px;left:10px;right:10px;font-size:11px;}}
+#panel{position:fixed;right:16px;top:auto;bottom:88px;transform:none;width:270px;max-width:82vw;max-height:44vh;overflow:auto;background:var(--panel);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid var(--line);border-radius:16px;padding:16px;z-index:6;display:none;}
+#panel.show{display:block;}
+/* 紧凑态：只留名称 + 功能摘要 + 「详情」，按内容自适应高度，不预留大面板 */
+#panel.compact{max-height:none;}
+#panel.compact .row:not(.lead),
+#panel.compact .acts{display:none;}
+#panel .more{margin-top:10px;width:100%;background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--txt);padding:8px;border-radius:9px;font-size:12px;cursor:pointer;}
+#panel .more:active{transform:scale(.98);}
+#panel h2{font-size:17px;font-weight:600;margin-bottom:2px;}
+#panel .sub{color:var(--accent);font-size:12px;margin-bottom:14px;}
+#panel .row{margin-bottom:12px;font-size:13px;line-height:1.6;}
+#panel .row b{display:block;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+#panel .row p{color:#d8d8e0;}
+#panel .close{position:sticky;top:0;float:right;background:none;border:none;color:var(--mut);font-size:20px;cursor:pointer;line-height:1;}
+#panel .acts{display:flex;gap:8px;margin-top:16px;}
+#panel .acts button{flex:1;background:var(--accent2);border:none;color:#fff;padding:9px 4px;border-radius:10px;font-size:12px;cursor:pointer;}
+#panel .acts button.ghost{background:rgba(255,255,255,.08);color:var(--txt);}
+@media(max-width:640px){
+  #panel{right:10px;left:10px;top:auto;bottom:76px;transform:none;width:auto;max-width:none;max-height:34vh;padding:14px;}
+  #partsPanel{max-height:46vh;}
+  #title{left:14px;top:12px;font-size:13px;}
+  #hud{left:8px;right:8px;transform:none;width:auto;justify-content:center;gap:5px;}
+  .btn{padding:9px 8px;font-size:11px;flex:1;min-width:0;}
+}
+#partsPanel{position:fixed;left:12px;top:56px;width:208px;max-width:74vw;max-height:58vh;display:none;flex-direction:column;background:var(--panel);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid var(--line);border-radius:14px;overflow:hidden;z-index:6;}
+#partsPanel.show{display:flex;}
+#searchInput{width:100%;border:none;background:rgba(255,255,255,.06);color:var(--txt);padding:12px 14px;font-size:14px;outline:none;}
+#searchInput::placeholder{color:var(--mut);}
+#partsList{overflow:auto;padding:6px;flex:1;}
+.partItem{padding:9px 12px;border-radius:9px;font-size:13px;color:var(--txt);cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center;}
+.partItem:hover{background:rgba(255,255,255,.08);}
+.partItem.active{background:var(--accent);color:#fff;}
+.partItem span{color:var(--mut);font-size:11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+.partItem.active span{color:rgba(255,255,255,.8);}
+#labels{position:fixed;inset:0;pointer-events:none;z-index:4;overflow:hidden;display:none;}
+.label{position:absolute;transform:translate(-50%,-50%);background:rgba(10,10,15,.82);border:1px solid var(--accent);color:#fff;font-size:11px;padding:3px 7px;border-radius:7px;white-space:nowrap;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+#leaders{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;display:none;}
+</style>
+</head>
+<body data-page-node-id="d1NVsQEeXHOXnnVcPMXl1S">
+<div id="scene" data-page-node-id="23XMBK1bwlEXzyBfKNZDO6"></div>
+<div id="boot">正在加载模型…</div>
+<div id="title" data-page-node-id="aXTfLEQKKGwLuYUqLgnTCG">iPhone 15 Pro<small data-page-node-id="tBte6rZQjYsaAAaxw9eKX2">动态拆解 · 拖拽旋转 / 滚轮缩放 / 点击元件</small></div>
+<div id="hud" data-page-node-id="hGNmYQWtqtVwZE29uAFuHj">
+  <button class="btn primary" id="btnExplode" data-page-node-id="hgyBR4OYPhoJVAPuPnKoR1">一键拆解</button>
+  <button class="btn" id="btnAssemble" data-page-node-id="YWHBQg2BckSV0Zb9OLxlLn">一键组装</button>
+  <button class="btn ghost" id="btnReset" data-page-node-id="b6rtn3RyyNLyQlwLNEG8FR">复位视角</button>
+  <button class="btn ghost" id="btnLabels">标注</button>
+  <button class="btn ghost" id="btnParts">元件</button>
+</div>
+<div id="net"></div>
+<div id="hint" data-page-node-id="BbQJ2dvyNOyqH0ISz5wPvL">点击元件查看说明 · 列表可检索定位</div>
+<div id="partsPanel" data-page-node-id="partsPanel">
+  <input id="searchInput" placeholder="搜索元件…" data-page-node-id="searchInput">
+  <div id="partsList" data-page-node-id="partsList"></div>
+</div>
+<svg id="leaders" data-page-node-id="leaders" xmlns="http://www.w3.org/2000/svg"></svg>
+<div id="labels" data-page-node-id="labels"></div>
+<div id="panel" data-page-node-id="zVqibm0NblLvOy0n3OWfPh">
+  <button class="close" id="panelClose" data-page-node-id="ZGqfW2YWjWItyxjAJW52ES">×</button>
+  <h2 id="pName" data-page-node-id="a0BOS72UPFjPTm9rysj8AD"></h2>
+  <div class="sub" id="pEn" data-page-node-id="ewslZSq9jBfPHAI386FHbD"></div>
+  <div class="row lead" data-page-node-id="qhYNGaBvap0JkXlIvuzcJs"><b data-page-node-id="O59XSpCm4Ty6LMQsPv8H2n">功能</b><p id="pFunc" data-page-node-id="pFfV8buQrwGNUiDIBpwhCa"></p></div>
+  <div class="row" data-page-node-id="w3jRSywiDwT6LARnAvFtPs"><b data-page-node-id="BUnKrq1WkFwmQjF1k5uHQD">参数</b><p id="pSpec" data-page-node-id="RHdevEZtlqzkTUATsh6AVy"></p></div>
+  <div class="row" data-page-node-id="QpQCzV1AAcLJvdSilv2bzl"><b data-page-node-id="LkP3M4sWCP7fKataOEvu74">原理</b><p id="pPrinc" data-page-node-id="F16GFlkce9qUXrr9a1ejcl"></p></div>
+  <div class="row" data-page-node-id="LFWAzImFiOeNLMdkP8nG4m"><b data-page-node-id="GineJR7yYX7qEqUsCrOOyh">维修提示</b><p id="pRepair" data-page-node-id="bjdbDcI8JwzVL86tFKMLom"></p></div>
+  <div class="row"><b>所需工具</b><p id="pTools"></p></div>
+  <div class="row"><b>拆解要点</b><p id="pStep"></p></div>
+  <div class="row"><b>难度 / 耗时</b><p id="pLevel"></p></div>
+  <button class="more" id="pMore">详情 ▾</button>
+  <div class="acts" data-page-node-id="dDCAqaBIgklNH9hfaslJM4"><button id="pFocus" data-page-node-id="BWGW55YlOhJjNeEWTAAFxr">整机视角</button><button class="ghost" id="pSolo" data-page-node-id="oDonVhw7UVkzj7i9e7Hgw7">单独拆出</button><button class="ghost" id="pReset">复位元件</button></div>
+</div>
+
+<script src="textures.js?v=5"></script>
+<script type="importmap">
+{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}
+</script>
+<script>window.__errs=[];addEventListener('error',e=>window.__errs.push(String(e.message||e.error)));addEventListener('unhandledrejection',e=>window.__errs.push('promise:'+String(e.reason)));</script>
+<script>
+/* 启动兜底：7 秒还没出画布 → 说明离线资源缺失或加载失败，给可读提示而不是白屏 */
+setTimeout(function(){
+  var b=document.getElementById('boot');
+  if(!b||document.querySelector('#scene canvas'))return;
+  b.style.color='#f2f2f4';
+  b.innerHTML='模型资源加载失败<br><b>请联网打开一次</b>，等模型出现后再离线使用'+
+    '<span style="display:block;margin-top:8px;font-size:12px;color:#8a8a96">已装到主屏幕的，联网启动并停留约 10 秒</span>';
+},7000);
+</script>
+<script>
+/* PWA：注册 Service Worker（首次联网加载后即可离线运行） */
+if('serviceWorker' in navigator){addEventListener('load',()=>{
+  // updateViaCache:'none' 是关键：不设的话 sw.js 自身会走 HTTP 缓存，
+  // 浏览器拿旧脚本比对判定"无更新"，新版本永远装不上 → 手机上一直用旧 index.html（离线白屏）
+  navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{
+    reg.update().catch(()=>{});
+    reg.addEventListener('updatefound',()=>{
+      const n=reg.installing;
+      if(!n)return;
+      n.addEventListener('statechange',()=>{
+        // 新版本装好且旧版本仍在控制页面时，自动重载以应用更新
+        if(n.state==='installed' && navigator.serviceWorker.controller){location.reload();}
+      });
+    });
+  }).catch(e=>console.warn('SW 注册失败',e));
+  // 每次回到前台再主动查一次更新，避免 PWA 长期驻留停在旧版本
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')navigator.serviceWorker.getRegistration().then(r=>r&&r.update().catch(()=>{}));
+  });
+});}else if(!window.isSecureContext){
+  // http + 局域网 IP：浏览器直接不提供 Service Worker API → 从来没有缓存 → 断网必然白屏
+  const n=document.getElementById('net');
+  if(n){
+    n.style.display='block';
+    n.innerHTML='当前是 <b>HTTP</b> 访问（'+location.host+'），浏览器禁用了离线缓存能力，所以断网会白屏；需 <b>HTTPS</b> 才能装到主屏并离线使用。';
+  }
+  const sm=document.querySelector('#title small');
+  if(sm)sm.textContent='HTTP 访问 · 离线不可用（需 HTTPS）';
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+
+const W=innerWidth,H=innerHeight;
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(W,H);
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.6;
+document.getElementById('scene').appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color('#0e0e15');
+// 环境贴图：让金属件有真实反射与亮度（否则 high-metalness 材质会糊成黑块）
+const pmrem=new THREE.PMREMGenerator(renderer);
+scene.environment=pmrem.fromScene(new RoomEnvironment(),0.04).texture;
+const camera=new THREE.PerspectiveCamera(42,W/H,.05,100);
+camera.position.set(0,0,.66);
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=.08;
+controls.minDistance=.15;controls.maxDistance=6;
+// 自测专用：?nmd=<米> 放宽最近距离（OrbitControls 默认会把相机顶到离目标 .15 处，近景全拍不到）
+if(new URLSearchParams(location.search).get('nmd'))controls.minDistance=parseFloat(new URLSearchParams(location.search).get('nmd'));
+controls.target.set(0,0,0);
+// 用户一旦手动旋转/缩放，立即放弃自动镜头目标，避免“自动回弹”与拖拽打架
+controls.addEventListener('start',()=>{camGoal=null;camTgtGoal=null;});
+// 自测用：?view=back 直接把初始相机摆到背面；?view=front 为正面前视（默认）
+// ?cam=x,y,z&tgt=x,y,z 可精确定位机位（世界坐标，供近景检查）
+const _q=new URLSearchParams(location.search);
+const _v=_q.get('view');
+if(_v==='back'){camera.position.set(.13,-.04,-.66);}
+else if(_v==='module'){camera.position.set(.0304,.1166,-.735);controls.target.set(.0304,.1166,-.517);}
+else if(_v==='front'){camera.position.set(0,0,.66);}
+else if(_v==='explode'){camera.position.set(.42,.24,.62);controls.target.set(0,0,.02);}
+if(_q.get('cam')){const a=_q.get('cam').split(',').map(Number);camera.position.set(a[0],a[1],a[2]);}
+if(_q.get('tgt')){const a=_q.get('tgt').split(',').map(Number);controls.target.set(a[0],a[1],a[2]);}
+controls.update();
+
+// 灯光（多向打光 + 半球光，配合环境贴图保证亮度与立体感）
+const key=new THREE.DirectionalLight(0xffffff,3.0);key.position.set(2,3,3);scene.add(key);
+const rim=new THREE.DirectionalLight(0xe8ecf4,1.3);rim.position.set(-2,-1,-2);scene.add(rim);
+const fill=new THREE.DirectionalLight(0xffffff,1.6);fill.position.set(-1.5,.5,1);scene.add(fill);
+const front=new THREE.DirectionalLight(0xffffff,1.4);front.position.set(0,0,4);scene.add(front);
+scene.add(new THREE.HemisphereLight(0xe6ecf6,0x1c1c20,1.0));
+scene.add(new THREE.AmbientLight(0xffffff,0.5));
+
+const parts=[];
+// 初始隐藏内部元件
+const root=new THREE.Group();scene.add(root);
+root.scale.setScalar(2.2);
+
+// ============ 贴图生成器 ============
+function canvasTex(w,h,draw){
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  const ctx=c.getContext('2d');draw(ctx,w,h);
+  const tx=new THREE.CanvasTexture(c);
+  tx.colorSpace=THREE.SRGBColorSpace;
+  tx.anisotropy=8;
+  return tx;
+}
+
+// 蓝色钛金属机身纹理
+function bodyTexture(){
+  return canvasTex(1024,1024,(ctx,w,h)=>{
+    const g=ctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'#4a5560');g.addColorStop(.5,'#39434e');g.addColorStop(1,'#2c353f');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    for(let i=0;i<400;i++){
+      ctx.strokeStyle=`rgba(255,255,255,${Math.random()*.03})`;
+      ctx.lineWidth=Math.random()*1.5;
+      const y=Math.random()*h;
+      ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y+Math.random()*4-2);ctx.stroke();
+    }
+  });
+}
+// 屏幕壁纸
+function screenTexture(){
+  return canvasTex(512,1024,(ctx,w,h)=>{
+    const g=ctx.createLinearGradient(0,0,w,h);
+    g.addColorStop(0,'#0a3d8f');g.addColorStop(.4,'#1450b0');g.addColorStop(.7,'#0b2e6a');g.addColorStop(1,'#061a3d');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    for(let i=0;i<30;i++){
+      const r=Math.random()*80+20;
+      const grd=ctx.createRadialGradient(Math.random()*w,Math.random()*h,0,Math.random()*w,Math.random()*h,r);
+      grd.addColorStop(0,'rgba(80,160,255,.35)');grd.addColorStop(1,'rgba(80,160,255,0)');
+      ctx.fillStyle=grd;ctx.fillRect(0,0,w,h);
+    }
+  });
+}
+// 后盖磨砂玻璃 + 苹果 logo
+function backTexture(){
+  return canvasTex(1024,1024,(ctx,w,h)=>{
+    const g=ctx.createLinearGradient(0,0,w,h);
+    g.addColorStop(0,'#3d4650');g.addColorStop(.5,'#313a44');g.addColorStop(1,'#232b33');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    for(let i=0;i<3000;i++){ctx.fillStyle=`rgba(255,255,255,${Math.random()*.025})`;ctx.fillRect(Math.random()*w,Math.random()*h,1.5,1.5);}
+    // 苹果 logo
+    ctx.save();ctx.translate(w/2,h/2);
+    ctx.fillStyle='rgba(255,255,255,.4)';
+    ctx.beginPath();
+    ctx.arc(-16,-8,22,0,Math.PI*2);ctx.arc(16,-8,22,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+// 主板 PCB（金线走线 + 过孔 + SoC 丝印）
+function boardTexture(){
+  return canvasTex(1024,768,(ctx,w,h)=>{
+    // 深绿近黑的阻焊层（真机 PCB，不是鲜艳绿色）
+    ctx.fillStyle='#0b1a12';ctx.fillRect(0,0,w,h);
+    // 细密走线：两层不同密度
+    const trace=(n,alpha,lw)=>{
+      ctx.strokeStyle='rgba(150,120,60,'+alpha+')';ctx.lineWidth=lw;
+      for(let i=0;i<n;i++){
+        ctx.beginPath();
+        let x=Math.random()*w,y=Math.random()*h;
+        ctx.moveTo(x,y);
+        for(let j=0;j<4;j++){
+          if(Math.random()>.5)x+=(Math.random()-.5)*170;else y+=(Math.random()-.5)*170;
+          ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+      }
+    };
+    trace(260,.10,1);trace(130,.17,1.4);
+    // 过孔 / 焊盘
+    for(let i=0;i<280;i++){
+      const x=Math.random()*w,y=Math.random()*h;
+      ctx.fillStyle=Math.random()>.5?'rgba(200,165,85,.5)':'rgba(210,212,218,.3)';
+      ctx.beginPath();ctx.arc(x,y,1.5+Math.random()*1.5,0,7);ctx.fill();
+    }
+    // 丝印框 + 型号文字
+    ctx.strokeStyle='rgba(225,228,235,.3)';ctx.lineWidth=2;
+    ctx.strokeRect(w*.30,h*.18,w*.34,h*.30);
+    ctx.fillStyle='rgba(225,228,235,.5)';ctx.font='bold 26px monospace';
+    ctx.fillText('A17 PRO',w*.335,h*.30);
+    ctx.font='15px monospace';
+    ctx.fillText('339S01234   APPLE 2023',w*.335,h*.345);
+    // 芯片占位暗区
+    ctx.fillStyle='#0a0d0b';
+    ctx.fillRect(w*.08,h*.62,w*.26,h*.18);
+    ctx.fillRect(w*.66,h*.08,w*.20,h*.14);
+  });
+}
+// 电池标签（真机：黑底白字 + 条码 + 型号，拆掉屏幕第一眼看到的就是这面）
+function batteryTexture(){
+  return canvasTex(512,512,(ctx,w,h)=>{
+    ctx.fillStyle='#0a0b0d';ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle='#3a3c42';ctx.lineWidth=3;ctx.strokeRect(14,14,w-28,h-28);
+    ctx.fillStyle='#e8e9ee';ctx.textAlign='center';
+    ctx.font='bold 21px sans-serif';ctx.fillText('Li-ion Polymer Battery',w/2,h*.16);
+    ctx.font='16px sans-serif';ctx.fillText('3.87V   3274mAh   12.70Wh',w/2,h*.235);
+    ctx.fillStyle='#9a9ca4';ctx.font='13px sans-serif';
+    ctx.fillText('Model A2890',w/2,h*.295);
+    ctx.fillText('Designed by Apple in California',w/2,h*.345);
+    // 条码（白底黑条）
+    ctx.fillStyle='#e8e9ee';ctx.fillRect(w*.14,h*.50,w*.50,h*.14);
+    for(let i=0;i<34;i++){
+      ctx.fillStyle='#0a0b0d';
+      ctx.fillRect(w*.152+i*7.3,h*.51,1+(i*5)%3,h*.12);
+    }
+    // 警示三角
+    ctx.fillStyle='#e0b23c';ctx.beginPath();
+    ctx.moveTo(w*.80,h*.47);ctx.lineTo(w*.87,h*.62);ctx.lineTo(w*.73,h*.62);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#0a0b0d';ctx.font='bold 20px sans-serif';ctx.fillText('!',w*.80,h*.605);
+    // 回收标识
+    ctx.strokeStyle='#6d7078';ctx.lineWidth=3;ctx.beginPath();ctx.arc(w*.26,h*.82,20,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#6d7078';ctx.font='11px sans-serif';ctx.fillText('Li-ion',w*.26,h*.83);
+  });
+}
+// 镜片光学玻璃（镀膜镜片的真实读法：深蓝紫玻璃 + 广域斜向反光 + 中心光圈 + 细镀膜环）
+function lensTexture(){
+  return canvasTex(256,256,(ctx,w,h)=>{
+    const g=ctx.createRadialGradient(w*.46,h*.42,4,w*.5,h*.5,128);
+    g.addColorStop(0,'#252a44');
+    g.addColorStop(.28,'#1a1d31');
+    g.addColorStop(.62,'#101322');
+    g.addColorStop(.88,'#090b13');
+    g.addColorStop(1,'#05060a');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    // 广域斜向反光（镀膜在环境光下的蓝紫干涉色，不是一个小点）
+    const sheen=ctx.createLinearGradient(w*.12,h*.1,w*.85,h*.9);
+    sheen.addColorStop(0,'rgba(120,150,255,.16)');
+    sheen.addColorStop(.45,'rgba(90,120,220,.07)');
+    sheen.addColorStop(1,'rgba(20,40,90,0)');
+    ctx.fillStyle=sheen;ctx.beginPath();ctx.arc(w/2,h/2,126,0,Math.PI*2);ctx.fill();
+    // 镀膜环（很淡）
+    ctx.strokeStyle='rgba(150,120,80,.16)';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(w/2,h/2,74,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle='rgba(90,120,160,.12)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(w/2,h/2,88,0,Math.PI*2);ctx.stroke();
+    // 镜片组中心光圈（f 光圈叶片位置的暗圆）
+    ctx.fillStyle='rgba(2,3,6,.85)';ctx.beginPath();ctx.arc(w/2,h/2,30,0,Math.PI*2);ctx.fill();
+    // 小蓝紫高光点
+    const hg=ctx.createRadialGradient(w*.44,h*.46,1,w*.44,h*.46,9);
+    hg.addColorStop(0,'rgba(160,185,255,.42)');
+    hg.addColorStop(1,'rgba(160,185,255,0)');
+    ctx.fillStyle=hg;ctx.beginPath();ctx.arc(w*.44,h*.46,9,0,Math.PI*2);ctx.fill();
+    // 外缘暗包边
+    ctx.strokeStyle='rgba(0,0,0,.75)';ctx.lineWidth=12;
+    ctx.beginPath();ctx.arc(w/2,h/2,120,0,Math.PI*2);ctx.stroke();
+  });
+}
+
+// 扬声器/听筒网孔
+function grilleTexture(){
+  return canvasTex(256,256,(ctx,w,h)=>{
+    ctx.fillStyle='#0a0a0c';ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='rgba(200,200,210,.55)';
+    const step=18;
+    for(let y=step/2;y<h;y+=step)for(let x=step/2;x<w;x+=step){
+      ctx.beginPath();ctx.arc(x,y,3.2,0,Math.PI*2);ctx.fill();
+    }
+  });
+}
+
+// MagSafe 密绕线圈纹理（深古铜色，真机线圈在黑色隔磁片上是暗铜，不发光）
+function coilTexture(){
+  return canvasTex(512,512,(ctx,w,h)=>{
+    ctx.fillStyle='#2a1e10';ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle='#7d5526';ctx.lineWidth=6;
+    for(let r=44;r<=236;r+=10){ctx.beginPath();ctx.arc(w/2,h/2,r,0,Math.PI*2);ctx.stroke();}
+    ctx.fillStyle='#6b4720';ctx.beginPath();ctx.arc(w/2,h/2,38,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#8a6330';ctx.lineWidth=8;
+    ctx.beginPath();ctx.moveTo(w/2+228,h/2);ctx.lineTo(w/2+252,h/2);ctx.stroke();
+  });
+}
+
+const txBody=bodyTexture(), txScreen=screenTexture(), txBack=backTexture(), txBoard=boardTexture(), txBattery=batteryTexture(), txLens=lensTexture(), txGrille=grilleTexture(), txCoil=coilTexture();
+
+const mFrame=new THREE.MeshStandardMaterial({color:0x26282c,metalness:.92,roughness:.50,envMapIntensity:.30});
+const mBack=new THREE.MeshStandardMaterial({color:0x24262a,metalness:.55,roughness:.42,envMapIntensity:.75});
+const mScreenGlow=new THREE.MeshStandardMaterial({map:txScreen,emissive:0x223366,emissiveMap:txScreen,emissiveIntensity:.5,roughness:.2});
+const mBlack=new THREE.MeshStandardMaterial({color:0x060608,metalness:.5,roughness:.4});
+const mBoard=new THREE.MeshStandardMaterial({map:txBoard,metalness:.3,roughness:.5});
+const mBattery=new THREE.MeshStandardMaterial({map:txBattery,metalness:.2,roughness:.6});
+const mMetal=new THREE.MeshStandardMaterial({color:0x9a9aa2,metalness:.9,roughness:.35});
+const mCopper=new THREE.MeshStandardMaterial({color:0xc07a3a,metalness:.85,roughness:.3});
+const mCopperDark=new THREE.MeshStandardMaterial({color:0x6d4a22,metalness:.85,roughness:.45});
+const mLens=new THREE.MeshPhysicalMaterial({map:txLens,metalness:.1,roughness:.05,clearcoat:1,clearcoatRoughness:.03});
+// 镜片组的侧面/剖面用：深蓝玻璃质感，不带贴图（贴图铺在圆周上会错位）
+const mLensSide=new THREE.MeshPhysicalMaterial({color:0x0d1018,metalness:.25,roughness:.12,clearcoat:1,clearcoatRoughness:.05,transparent:true,opacity:.92});
+// 闪光灯暖白玻璃面（朝外圆盘）
+const mFlashRing=new THREE.MeshPhysicalMaterial({color:0xd8d0bc,metalness:.08,roughness:.20,clearcoat:1,clearcoatRoughness:.06,emissive:0x241f14,emissiveIntensity:.35});
+const mCam=new THREE.MeshStandardMaterial({color:0x101216,metalness:.7,roughness:.35,envMapIntensity:.8});
+const mCamBase=new THREE.MeshStandardMaterial({color:0x2b2e37,metalness:.35,roughness:.6,envMapIntensity:.6});
+// 镜圈：真机（黑钛）实测是暗灰蓝环 ≈RGB(58,63,71)，几乎与岛面同色，绝不能是银色
+const mBezel=new THREE.MeshStandardMaterial({color:0x353a42,metalness:.85,roughness:.5,envMapIntensity:.45});
+const mVCM=new THREE.MeshStandardMaterial({color:0x23262e,metalness:.85,roughness:.35,envMapIntensity:1});
+const mCMOS=new THREE.MeshStandardMaterial({color:0x141410,metalness:.25,roughness:.65});
+const mSensor=new THREE.MeshStandardMaterial({color:0x0a0f1a,metalness:.3,roughness:.15,envMapIntensity:1.1});
+const mFPCmat=new THREE.MeshStandardMaterial({color:0x6e4218,metalness:.3,roughness:.6});
+const mCable=new THREE.MeshStandardMaterial({color:0x8f5f1c,metalness:.2,roughness:.58});
+const mGold=new THREE.MeshStandardMaterial({color:0xd8b04a,metalness:.9,roughness:.3,envMapIntensity:1});
+const mGraphite=new THREE.MeshStandardMaterial({color:0x1f2126,metalness:.4,roughness:.7});
+const mBatteryBody=new THREE.MeshStandardMaterial({color:0x0b0c0e,metalness:.28,roughness:.62,envMapIntensity:.35});
+const mGrille=new THREE.MeshStandardMaterial({map:txGrille,metalness:.6,roughness:.5});
+const mScrewHead=new THREE.MeshStandardMaterial({color:0x8a8f96,metalness:.95,roughness:.3,envMapIntensity:1.2});
+// 屏蔽罩金属（主板/排线 EMI 盖/Face ID 子模组共用，提到顶层避免跨块作用域报错）
+const mShield=new THREE.MeshStandardMaterial({color:0x6f747c,metalness:.9,roughness:.42,envMapIntensity:.55});
+
+const PW=.0706, PH=.1466, PD=.00825;
+// 后盖贴图 760px 对应机身短边 PW，1px = PX 米。相机模组与后盖凸台共用这套换算。
+const PX=PW/760;
+
+function rbox(w,h,d,mat,ox=0,oy=0,oz=0,r=.002){
+  r=Math.min(r,Math.min(w,h,d)*.35);
+  const m=new THREE.Mesh(new RoundedBoxGeometry(w,h,d,4,r),mat);m.position.set(ox,oy,oz);return m;
+}
+function box(w,h,d,mat,ox=0,oy=0,oz=0){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(ox,oy,oz);return m;
+}
+function cyl(r,h,mat,ox=0,oy=0,oz=0){
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,48),mat);m.position.set(ox,oy,oz);return m;
+}
+function torus(r,t,mat,ox=0,oy=0,oz=0){
+  const m=new THREE.Mesh(new THREE.TorusGeometry(r,t,24,64),mat);
+  m.position.set(ox,oy,oz);return m;
+}
+function cylZ(r,h,mat,ox=0,oy=0,oz=0){const m=cyl(r,h,mat,ox,oy,oz);m.rotation.x=Math.PI/2;return m;}
+// 镜片玻璃（朝 -Z 的圆盘）：专门用来显示 txLens 那张径向镀膜贴图。
+// 用 CylinderGeometry 端面当镜面是不行的——圆柱端面的 UV 是极坐标，
+// 采样 txLens 会错位成一片暗色，看起来就是"空心镜片"。
+function lensDisc(r,mat,ox=0,oy=0,oz=0){
+  const m=new THREE.Mesh(new THREE.CircleGeometry(r,64),mat);
+  m.position.set(ox,oy,oz);
+  m.rotation.y=Math.PI;      // 法线朝 -Z（面向机身外侧的观察者）
+  return m;
+}
+// 圆环柱（沿 Z 轴、中心有孔的短管）：镜头的黑色台肩必须用这个。
+// 用实心 cyl 会把里面的镜片玻璃整个包住 → 从外面只看到台肩黑顶面，镜片成了"空心环"。
+function ringZ(rOut,rIn,h,mat,ox=0,oy=0,oz=0){
+  const grp=new THREE.Group();
+  // 外壁 + 内壁（内壁用 DoubleSide 省事，且镜筒内部本来就该能看到）
+  const outer=new THREE.Mesh(new THREE.CylinderGeometry(rOut,rOut,h,64,1,true),mat);
+  const innerMat=mat.clone();innerMat.side=THREE.BackSide;
+  const inner=new THREE.Mesh(new THREE.CylinderGeometry(rIn,rIn,h,64,1,true),innerMat);
+  // 上下两个环形端面
+  const top=new THREE.Mesh(new THREE.RingGeometry(rIn,rOut,64,1),mat);
+  top.position.y=h/2;top.rotation.x=-Math.PI/2;
+  const bot=new THREE.Mesh(new THREE.RingGeometry(rIn,rOut,64,1),mat);
+  bot.position.y=-h/2;bot.rotation.x=Math.PI/2;
+  grp.add(outer,inner,top,bot);
+  grp.rotation.x=Math.PI/2;          // 立起来 → 轴向 Z
+  grp.position.set(ox,oy,oz);
+  return grp;
+}
+// 圆角矩形路径（reverse=true 生成反向绕行路径，用作轮廓的孔）
+function roundedRectInto(p,w,h,r,reverse){
+  const x=-w/2,y=-h/2;
+  if(!reverse){
+    p.moveTo(x+r,y);p.lineTo(x+w-r,y);p.quadraticCurveTo(x+w,y,x+w,y+r);
+    p.lineTo(x+w,y+h-r);p.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    p.lineTo(x+r,y+h);p.quadraticCurveTo(x,y+h,x,y+h-r);
+    p.lineTo(x,y+r);p.quadraticCurveTo(x,y,x+r,y);
+  }else{
+    p.moveTo(x+r,y);p.quadraticCurveTo(x,y,x,y+r);
+    p.lineTo(x,y+h-r);p.quadraticCurveTo(x,y+h,x+r,y+h);
+    p.lineTo(x+w-r,y+h);p.quadraticCurveTo(x+w,y+h,x+w,y+h-r);
+    p.lineTo(x+w,y+r);p.quadraticCurveTo(x+w,y,x+w-r,y);
+  }
+}
+function roundedRectShape(w,h,r){const s=new THREE.Shape();roundedRectInto(s,w,h,r,false);return s;}
+// 圆角薄板（主板/电池等内部元件的圆角外形），ox/oy 为平面偏移
+function slab(w,h,d,mat,r=.004,oz=0,ox=0,oy=0){
+  const g=new THREE.ExtrudeGeometry(roundedRectShape(w,h,r),{depth:d,bevelEnabled:false,curveSegments:16});
+  g.translate(ox,oy,-d/2+oz);
+  return new THREE.Mesh(g,mat);
+}
+function reg(id,grp,hx,hy,hz,ex,ey,ez){
+  grp.position.set(hx,hy,hz);
+  grp.traverse(o=>{if(o.isMesh)o.userData.pid=parts.length;});
+  root.add(grp);
+  parts.push({group:grp,home:new THREE.Vector3(hx,hy,hz),exploded:new THREE.Vector3(ex,ey,ez),id});
+  return grp;
+}
+// 真机螺丝：金属帽 + 十字槽（dir=1 朝 +Z，-1 朝 -Z）
+function screw(parent,x,y,z,dir=1,r=.0013){
+  parent.add(cylZ(r,.0012,mScrewHead,x,y,z));
+  parent.add(box(r*1.6,.0005,.0003,mBlack,x,y,z+dir*.0008));
+  parent.add(box(.0005,r*1.6,.0003,mBlack,x,y,z+dir*.0008));
+}
+
+// ============ 1 钛金属中框（圆角矩形截面 + 微凸侧键） ============
+const frame=new THREE.Group();
+{
+  // 中空环形框：外轮廓圆角 12mm，内孔缩进 1.4mm/边（真机窄边），孔圆角与外弧同心
+  const shape=roundedRectShape(PW,PH,0.0135);
+  // 内孔再收 0.4mm/边（1.4→1.0mm）：孔壁藏在玻璃底下，正面只从斜角看到极细一线钛色
+  const hole=new THREE.Path();roundedRectInto(hole,PW-.0020,PH-.0020,0.0125,true);
+  shape.holes.push(hole);
+  const fgeo=new THREE.ExtrudeGeometry(shape,{depth:PD,bevelEnabled:true,bevelThickness:.0003,bevelSize:.0003,bevelSegments:3,steps:1,curveSegments:48});
+  fgeo.translate(0,0,-PD/2);
+  frame.add(new THREE.Mesh(fgeo,mFrame));
+  // 侧键：电源(右)、音量±与操作键(左) —— 微凸、黑钛色
+  const mBtn=new THREE.MeshStandardMaterial({color:0x44474c,metalness:.95,roughness:.38,envMapIntensity:1.0});
+  const sideBtn=(x,y,bh)=>frame.add(rbox(PD*.3,bh,PD*1.02,mBtn,x,y,0,.0005));
+  sideBtn(PW/2-.002,.02,.018);     // 电源键
+  sideBtn(-PW/2+.002,.006,.013);   // 音量+
+  sideBtn(-PW/2+.002,-.006,.013);  // 音量-
+  sideBtn(-PW/2+.002,-.023,.011);  // 操作按钮
+  // 天线隔断带（侧壁细窄断带，真机特征）
+  const mAnt=new THREE.MeshStandardMaterial({color:0x2b2d30,metalness:.5,roughness:.6});
+  [[PW/2,.052],[PW/2,-.052],[-PW/2,.052],[-PW/2,-.052]].forEach(([x,y])=>{
+    frame.add(box(.0007,.0035,PD*1.01,mAnt,x,y,0));
+  });
+  // 内部螺丝柱（四角 + 中部，拆解时可见的结构细节）
+  const mBoss=new THREE.MeshStandardMaterial({color:0x3a3d42,metalness:.85,roughness:.4});
+  [[-.030,.064],[.030,.064],[-.030,-.064],[.030,-.064],[0,-.060],[0,.068]].forEach(([x,y])=>{
+    frame.add(cylZ(.0022,PD*.55,mBoss,x,y,0));
+    frame.add(cylZ(.0011,PD*.62,mBlack,x,y,0)); // 螺纹孔
+  });
+  // 底部两颗五角螺丝（真机位置：充电口两侧）
+  screw(frame,-.006,-PH/2+.0012,PD*.28,1,.0011);
+  screw(frame,.006,-PH/2+.0012,PD*.28,1,.0011);
+}
+reg('frame',frame,0,0,0, 0,0,-.02);
+
+// ============ 2 后盖玻璃（官方真机贴图） ============
+const backglass=new THREE.Group();
+{
+  // 底板圆角 .0133 = 外弧 .0135 内缩 0.2mm，整圈埋进框体——背面看不到中框“下巴”
+  backglass.add(slab(PW-.0004,PH-.0004,PD*.3,mBack,.0133));
+  const txBackPhoto=new THREE.TextureLoader().load(TEX_DATA.back);
+  txBackPhoto.colorSpace=THREE.SRGBColorSpace;
+  const mBackPhoto=new THREE.MeshBasicMaterial({map:txBackPhoto,transparent:true,alphaTest:.5});
+  // 贴图里机身只占 98.68%×97.56%，且底部留白 38px —— 直接按 PW×PH 铺会露出“下巴”。
+  // 按实测占比放大并补偿偏移，让贴图里的机身轮廓与几何体严丝合缝。
+  const bpW=PW/0.9868,bpH=PH/0.9756;
+  const backPlane=new THREE.Mesh(new THREE.PlaneGeometry(bpW,bpH),mBackPhoto);
+  backPlane.position.set(0.00132*bpW,-0.0122*bpH,-PD*.16);
+  backPlane.rotation.y=Math.PI; // 法线朝 -Z，背面观看不镜像、不被剔除
+  backglass.add(backPlane);
+  // 后置相机凸台：尺寸按官方背板贴图实测（暗区 374×366px = 34.7×34.0mm，
+  // 中心 px(249,215) → 世界 (.0124,.0525)。旧值宽 355/中心 .0138 偏左 15px）
+  // ⚠ slab 的 oz 是「中心」不是「外表面」：z 范围 = [oz-d/2, oz+d/2]
+  //    真机相机岛比后盖高出约 1.5mm（整机组装后），所以从玻璃背面 -PD*.15 再往外长 .0015
+  const mCamPlate=new THREE.MeshStandardMaterial({color:0x3a3b3d,metalness:.22,roughness:.30,envMapIntensity:.62});
+  backglass.add(slab((436-62)*PX,(398-32)*PX,.0015,mCamPlate,.0060,-PD*.15-.00075,.0124,.0525));
+}
+// 后盖整体外移 0.01PD：让玻璃背面与中框背面齐平并略高出，中框背面那一圈不再露在玻璃外
+reg('backglass',backglass,0,0,-PD*.345, 0,0,-.17);
+
+// ============ 3 屏幕总成（官方真机贴图） ============
+const screen=new THREE.Group();
+{
+  // 面板圆角 .0131 = 中框外弧 .0135 内缩 0.4mm，与中框同圆心——四角不再顶出
+  // 尺寸做到 PW-.0008：玻璃压到中框正面之上，正面只剩 0.4mm 一圈钛色，看起来才是真机窄边
+  screen.add(slab(PW-.0008,PH-.0008,PD*.26,mBlack,.0131));
+  const txScrPhoto=new THREE.TextureLoader().load(TEX_DATA.screen);
+  txScrPhoto.colorSpace=THREE.SRGBColorSpace;
+  // alphaTest 提高：裁掉贴图轮廓外的抗锯齿/投影光晕，否则四角会冒出暗边
+  const mScrPhoto=new THREE.MeshBasicMaterial({map:txScrPhoto,transparent:true,alphaTest:.5});
+  // 同样按贴图实测占比（98.68%×98.96%，重心偏左 0.66%、偏上 0.52%）放大对齐
+  const spW=PW/0.9868,spH=PH/0.9896;
+  const scrPlane=new THREE.Mesh(new THREE.PlaneGeometry(spW,spH),mScrPhoto);
+  scrPlane.position.set(0.00658*spW,-0.0052*spH,PD*.137);
+  screen.add(scrPlane);
+}
+// 整块面板抬到略高于中框正面：玻璃压住中框正面那一圈，正面只剩 0.2mm 钛边
+reg('screen',screen,0,0,PD*.375, 0,0,.22);
+
+// ============ 4 主板（阶梯 PCB + 屏蔽罩 + 密集贴片元件） ============
+const board=new THREE.Group();
+{
+  // 阶梯形基板（主体 + 上段延伸 + 下段延伸），真机逻辑板不是规整矩形
+  board.add(slab(PW*.62,PH*.30,PD*.46,mBoard,.004,0,-.002,.022));
+  board.add(slab(PW*.50,PH*.14,PD*.46,mBoard,.004,0,-.002,.052));
+  board.add(slab(PW*.34,PH*.12,PD*.46,mBoard,.004,0,-.002,-.020));
+  // 屏蔽罩（银色金属罩，大小错落，倒角；材质 mShield 已提到顶层）
+  const shields=[[PW*.24,PH*.11,.002,.036],[PW*.13,PH*.08,-.020,.038],[PW*.12,PH*.10,.024,.034],
+                 [PW*.08,PH*.055,-.004,.018],[PW*.065,PH*.045,.014,.010],[PW*.09,PH*.045,-.010,-.012]];
+  shields.forEach(([w,h,x,y])=>board.add(rbox(w,h,PD*.09,mShield,x,y,PD*.30,.0012)));
+  // 屏蔽罩固定螺丝
+  const mScrew2=new THREE.MeshStandardMaterial({color:0x1b1b20,metalness:.92,roughness:.3});
+  [[-.022,.040],[.022,.040],[-.022,.014],[.022,.014],[-.014,.056],[.016,.058],[0,-.026]]
+    .forEach(([x,y])=>board.add(cyl(.0019,PD*.15,mScrew2,x,y,PD*.35)));
+  // 贴片阻容/电感阵列（固定种子，保证每次一致）
+  const mChipBrown=new THREE.MeshStandardMaterial({color:0x6b5236,metalness:.35,roughness:.55});
+  const mChipGray=new THREE.MeshStandardMaterial({color:0x6e737a,metalness:.7,roughness:.4});
+  const pal=[mBlack,mChipBrown,mChipGray,mCopper];
+  let seed=20261030;
+  const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};
+  for(let i=0;i<48;i++){
+    const w=.0011+rnd()*.0021,h=.0008+rnd()*.0015;
+    const x=(rnd()-.5)*PW*.56,y=(rnd()-.5)*PH*.28+.01;
+    board.add(box(w,h,PD*.045,pal[(rnd()*4)|0],x,y,PD*.255+rnd()*.02));
+  }
+  // 裸芯片（未加盖的 SoC/电源管理）
+  board.add(box(.012,.010,PD*.05,mBlack,-.014,-.004,PD*.26));
+  board.add(box(.008,.007,PD*.045,mChipGray,.020,.026,PD*.26));
+  // 板对板连接器 + 排线座 + 边缘金手指
+  [[.016,-.030],[-.018,-.030],[.004,-.034]].forEach(([x,y])=>board.add(box(.008,.0032,PD*.09,mGold,x,y,PD*.28)));
+  board.add(box(.014,.0026,PD*.06,mBlack,.022,-.040,PD*.28));
+  for(let i=0;i<7;i++)board.add(box(.0016,.0038,PD*.05,mGold,-.020+i*.0075,-.046,PD*.27));
+  // 天线弹片（金色小 L 形）
+  [[-.026,-.020],[.028,-.018],[-.030,.004]].forEach(([x,y])=>{
+    board.add(box(.0018,.006,PD*.05,mGold,x,y,PD*.27));
+    board.add(box(.004,.0018,PD*.05,mGold,x+.002,y-.002,PD*.27));
+  });
+  // —— 主芯片群（真机逻辑板高密度辨识特征）——
+  const mSoC=new THREE.MeshStandardMaterial({color:0x14161a,metalness:.55,roughness:.46}); // 黑硅封装
+  // A17 Pro：本体 + 散热金属盖（居左上芯片区）
+  board.add(box(.018,.014,PD*.055,mSoC,-.012,-.004,PD*.275));
+  board.add(box(.017,.013,PD*.012,mShield,-.012,-.004,PD*.305));
+  // LPDDR5 运存：紧贴 SoC 四边（实机与 SoC 叠放在同一封装基板）
+  [[-.012,.010],[-.012,-.018],[-.003,-.004],[-.021,-.004]].forEach(([x,y])=>
+    board.add(box(.008,.006,PD*.04,mChipGray,x,y,PD*.29)));
+  // 基带（高通 X70，右上）
+  board.add(box(.013,.011,PD*.05,mSoC,.013,.012,PD*.275));
+  board.add(box(.012,.010,PD*.01,mShield,.013,.012,PD*.30));
+  // 射频前端模组（上段 + 主体内小屏蔽罩）
+  [[-.015,.047],[.013,.052],[.019,.010],[-.020,.015]].forEach(([x,y])=>
+    board.add(rbox(.008,.006,PD*.10,mShield,x,y,PD*.30,.0006)));
+  // 电源管理 IC ×2
+  board.add(box(.010,.008,PD*.04,mChipBrown,.018,.003,PD*.285));
+  board.add(box(.008,.007,PD*.04,mChipGray,.002,.015,PD*.285));
+  // UWB / 蓝牙 / 辅控（小黑块）
+  [[-.021,-.016],[.021,-.007],[.008,-.014]].forEach(([x,y])=>
+    board.add(box(.006,.005,PD*.035,mBlack,x,y,PD*.28)));
+  // 更多固定螺丝（四角 + 中段，拆主板时可见）
+  [[-.028,.056],[.028,.056],[-.030,.012],[.030,.012],[0,-.046],[.008,.058]].forEach(([x,y])=>
+    screw(board,x,y,PD*.34,1,.001));
+}
+reg('board',board,0,.03,0, 0,.03,-.01);
+
+// ============ 5 电池（圆角外形 + 标签面） ============
+const battery=new THREE.Group();
+{
+  // 铝塑膜金属包边 + 电芯本体
+  const mBattEdge=new THREE.MeshStandardMaterial({color:0x4e5257,metalness:.9,roughness:.34,envMapIntensity:.6});
+  battery.add(slab(PW*.74,PH*.42,PD*.36,mBattEdge,.007));
+  battery.add(slab(PW*.72,PH*.40,PD*.42,mBatteryBody,.006));
+  // 两面都贴印刷标签（朝向屏幕一面在拆掉屏幕后直接可见）
+  const mLbl=new THREE.MeshBasicMaterial({map:txBattery});
+  const lblF=new THREE.Mesh(new RoundedBoxGeometry(PW*.62,PH*.32,PD*.012,2,.0012),mLbl);
+  lblF.position.z=PD*.215;battery.add(lblF);
+  const lblB=lblF.clone();lblB.position.z=-PD*.215;battery.add(lblB);
+  // 顶部保护板 + 连接座 + 排线尾巴
+  battery.add(box(PW*.66,PH*.026,PD*.30,mBlack,0,PH*.182,0));
+  battery.add(box(.013,.004,PD*.09,mBlack,0,PH*.182,PD*.13));
+  battery.add(box(.009,.0026,PD*.05,mGold,-.004,PH*.182,PD*.185));
+  const btail=box(.011,PH*.045,PD*.018,mBlack,.024,PH*.215,PD*.05);btail.rotation.z=.12;battery.add(btail);
+  // 易撕拉胶片（顶部两条）
+  battery.add(box(.006,PH*.06,PD*.08,mCopper,-PW*.15,PH*.245,0));
+  battery.add(box(.006,PH*.06,PD*.08,mCopper,PW*.15,PH*.245,0));
+}
+reg('battery',battery,0,-.03,0, -.01,-.03,-.05);
+
+// ============ 6 后置三摄 ============
+/* 坐标换算：贴图 760px = 机身短边 PW，故 1px = PW/760 = 9.289e-5 m。
+   ── 唯一基准（本版重写）────────────────────────────────────────
+   模组组的原点 = 后盖贴图所在的平面（局部 z=0）。
+   镜圈端面 z=0，所有结构一律朝 +Z（机身内侧）延伸：
+       端面 0 → 镜筒 → VCM → CMOS → FPC座
+   这样"装配态"由贴图唯一决定，不会再出现整组沉进/浮出后盖的情况。
+   （上一版把组基准设成 -PD*.616，组内层又从 -PD*.185 排到 +PD*.535，
+     两套坐标系混用 → 底座悬空、镜片漂浮。这是"更离谱"的根因。）
+   闪光灯/雷达的圆心与半径全部按贴图灰度剖面实测（见下方注释）。 */
+// 相机岛在贴图坐标系里的中心（像素）。2026-11-03 重测：岛暗区 x[62,436] y[32,398]
+// → 中心 px(249, 215)（34.7mm 宽 ≈ 真机 ~36mm）。
+// ⚠ 旧值 260.5 是把主摄暗圆左缘(x≈82)误当岛左缘(x=83)量出来的 → 整组系统性偏移。
+// 模组内部各层都以它为原点做相对定位。
+const ICX=249.0, ICY=215.0;
+const camera3=new THREE.Group();
+// [中心x(px), 中心y(px), 镜圈半径(px), 黑环外半径(px), FPC 长度(PD)]
+// 2026-11-03 15:0x 对齐修正：中心改用背贴图印刷暗圆实测圆心
+//   主摄(146,119) 超广角(148,305) 长焦(320,215)（近黑圆 bbox≈128px，与 3D 镜圈 128px 同大）。
+//   旧值 (123.5,102.5) 等是黑钛换图前量的 → 三镜整体偏左 22px / 偏上 17px，
+//   印刷暗圆新月边从镜右侧露出——这才是"偏左"的真正来源（home 只对了一半）。
+//   镜圈 64 / 黑台肩 65（玻璃直径 126px）不变。
+const LENS=[
+  [146.0, 119.0, 64.0, 65.0, .52],   // 主摄（左上）
+  [148.0, 305.0, 64.0, 65.0, .38],   // 超广角（左下）
+  [320.0, 215.0, 64.0, 65.0, .40],   // 长焦（右）
+];
+{
+  // 相机岛凸台：连续平滑斜壁 + 平顶盖（替代旧「方板叠方板」两层台阶——
+  // 旧 3D 底座悬空浮在岛面外 1.6mm，和背盖凸台形成双层棱角，被批"像贴上去的"）。
+  // 斜壁：底 392×392px（z=+0.0017，埋进玻璃面 0.2mm）→ 顶 376×376px（z=0 岛面），
+  // 与印刷岛暗区 374px 同宽（458px 是放大镜头时临时撑大的，比官方岛大 8mm，已收回）。
+  // 50° 斜壁 + 圆角矩形轮廓，computeVertexNormals 平滑着色 → 圆滑过渡。
+  const rrectPts=(hw,hh,r,N)=>{
+    const sw=2*(hw-r), sh=2*(hh-r), q=Math.PI*r/2;
+    const pts=[];
+    for(let i=0;i<N;i++){
+      let d=i/N*(2*sw+2*sh+4*q), x, y;
+      if(d<sw){x=-hw+r+d; y=-hh;}
+      else if((d-=sw)<q){const a=-Math.PI/2+d/q*Math.PI/2; x=hw-r+r*Math.cos(a); y=-hh+r+r*Math.sin(a);}
+      else if((d-=q)<sh){x=hw; y=-hh+r+d;}
+      else if((d-=sh)<q){const a=d/q*Math.PI/2; x=hw-r+r*Math.cos(a); y=hh-r+r*Math.sin(a);}
+      else if((d-=q)<sw){x=hw-r-d; y=hh;}
+      else if((d-=sw)<q){const a=Math.PI/2+d/q*Math.PI/2; x=-hw+r+r*Math.cos(a); y=hh-r+r*Math.sin(a);}
+      else if((d-=q)<sh){x=-hw; y=hh-r-d;}
+      else {const a=Math.PI+d/q*Math.PI/2; x=-hw+r+r*Math.cos(a); y=-hh+r+r*Math.sin(a);}
+      pts.push([x,y]);
+    }
+    return pts;
+  };
+  const NB=rrectPts(196*PX,196*PX,.0094,128), NT=rrectPts(188*PX,188*PX,.0082,128);
+  const pos=[], idx=[];
+  NB.forEach(([px,py])=>pos.push(px,py,.0017));
+  NT.forEach(([px,py])=>pos.push(px,py,0));
+  for(let i=0;i<128;i++){
+    const a=i*2, b=((i+1)%128)*2;
+    idx.push(a,b+1,b, a,a+1,b+1);   // 外向法线（轮廓 CCW、顶面朝 -Z）
+  }
+  const wallGeo=new THREE.BufferGeometry();
+  wallGeo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  wallGeo.setIndex(idx); wallGeo.computeVertexNormals();
+  camera3.add(new THREE.Mesh(wallGeo,mCamBase));
+  // 平顶盖：镜头坐着的岛面（朝 -Z 的圆角矩形面板，z=0 与岛面齐平）
+  const shape=new THREE.Shape();
+  const hw=188*PX, hh=188*PX, cr=.0082;
+  shape.moveTo(-hw+cr,-hh);
+  shape.lineTo(hw-cr,-hh); shape.absarc(hw-cr,-hh+cr,cr,-Math.PI/2,0,false);
+  shape.lineTo(hw,hh-cr);  shape.absarc(hw-cr,hh-cr,cr,0,Math.PI/2,false);
+  shape.lineTo(-hw+cr,hh); shape.absarc(-hw+cr,hh-cr,cr,Math.PI/2,Math.PI,false);
+  shape.lineTo(-hw,-hh+cr); shape.absarc(-hw+cr,-hh+cr,cr,Math.PI,Math.PI*1.5,false);
+  const capGeo=new THREE.ShapeGeometry(shape,24); capGeo.rotateX(Math.PI);
+  camera3.add(new THREE.Mesh(capGeo,mCamBase));
+
+  const mDarkRing=new THREE.MeshStandardMaterial({color:0x15171a,metalness:.8,roughness:.35});
+  const mWhiteLED=new THREE.MeshStandardMaterial({color:0xfff2d8,emissive:0xffe9c0,emissiveIntensity:.55,roughness:.35});
+
+  // 单个镜头的完整叠层：全部以 (x,y,0) 为轴，z 从 0 往 +Z
+  const buildLens=(xpx,ypx,rBez,rOut,len)=>{
+    // 贴图 y 向下。后盖贴图平面做了 rotation.y=π（法线朝 -Z，背面观察不镜像），
+    // 这一旋转使贴图的 +x 在机身局部系里变成 -x；而 y 方向两者一致（贴图向下 = 局部 y 向下）。
+    // 所以：局部 x = (ICX - xpx)、局部 y = (ICY - ypx)。
+    // （上一版 x 少取了一个反号，闪光灯/雷达整体镜像到了左边）
+    const x=(ICX-xpx)*PX, y=(ICY-ypx)*PX;
+    const rb=rBez*PX;                        // 镜圈半径
+    const ro=rOut*PX;                        // 黑台肩外沿半径
+    const rg=rb*.985;                        // 玻璃半径：真机玻璃几乎顶满镜圈，只留极细一圈环壁
+    // ① 黑色台肩：必须是「环」，不是实心柱！上一版用实心 cyl 把玻璃整个吞了，
+    //    从外面只能看到台肩黑顶面 → 视觉上就是"空心镜片"。这里改成外环 + 内孔。
+    camera3.add(ringZ(ro,rg*.995,PD*.16,mCam,x,y,PD*.08));
+    // ② 镜圈（黑钛细环）：压在台肩顶端，端面最靠外。管径收细——真机圈很窄
+    camera3.add(torus(rb,.00038,mBezel,x,y,0));
+    // ③ 外露玻璃：朝外的圆盘（贴 txLens 径向镀膜），凹在银环里 0.06PD
+    camera3.add(lensDisc(rg,mLens,x,y,-PD*.06));
+    // ④ 镜筒：外径等于玻璃半径，从玻璃后方一路插进机身
+    camera3.add(cylZ(rg,PD*.46,mCam,x,y,PD*.33));
+    // ⑤ 镜片组：三片玻璃，逐片收小（侧剖面能数出层次）
+    [0,.055,.11].forEach((dz,i)=>{
+      const r=rg*(1-.075*i);
+      camera3.add(cylZ(r,PD*.016,mLensSide,x,y,PD*.175+PD*dz));
+      camera3.add(cylZ(r*1.02,PD*.006,mBlack,x,y,PD*.183+PD*dz)); // 垫圈
+    });
+    // ⑥ 铜线圈 + VCM 冲程筒
+    camera3.add(cylZ(rb*.90,PD*.10,mCopper,x,y,PD*.42));
+    camera3.add(cylZ(rb*.88,PD*.26,mVCM,x,y,PD*.60));
+    // ⑦ CMOS 基板 + 感光芯片（同轴，压在 VCM 之后）
+    camera3.add(slab(rb*2.30,rb*2.30,PD*.055,mCMOS,.0016,PD*.76,x,y));
+    camera3.add(box(rb*1.90,rb*1.90,PD*.05,mSensor,x,y,PD*.795));
+    // ⑧ FPC：从基板边缘朝岛内（取远离岛中心的一侧）引出
+    const dirY=y>0?-1:1;
+    const fy=y+dirY*rb*1.15;
+    camera3.add(box(rb*.95,PD*.014,PD*len,mFPCmat,x,fy,PD*.76+PD*len/2));
+    camera3.add(box(rb*.72,.0007,PD*.03,mGold,x,fy,PD*.75+PD*len));
+  };
+  LENS.forEach(([xpx,ypx,rb,ro,len])=>buildLens(xpx,ypx,rb,ro,len));
+  camera3.userData.px=PX; camera3.userData.ic=[ICX,ICY]; camera3.userData.lens=LENS;
+
+  // 闪光灯：贴图实测圆形亮盘 c=(322,100)，亮区半径 27px（灰度剖面 130 → 40px 处并入岛面）
+  // 真机是暖白色圆形闪光窗 + 极细金属圈。尺寸按贴图：整体直径 ~54px≈5mm
+  const fx=(ICX-322)*PX, fy=(ICY-100)*PX;
+  const mFlashGlass=new THREE.MeshPhysicalMaterial({color:0xcfc7b2,metalness:.06,roughness:.22,clearcoat:1,clearcoatRoughness:.08,emissive:0x1a160e,emissiveIntensity:.22});
+  camera3.add(cylZ(27*PX,PD*.08,mDarkRing,fx,fy,PD*.04));    // 外圈深色环
+  camera3.add(lensDisc(24*PX,mFlashRing,fx,fy,-PD*.045));     // 暖白玻璃面（朝外圆盘）
+  camera3.add(cylZ(6*PX,PD*.02,mWhiteLED,fx-.0035,fy+.004,PD*.012));  // 双色温 LED ×2
+  camera3.add(cylZ(6*PX,PD*.02,mWhiteLED,fx+.0045,fy-.0035,PD*.012));
+  // 激光雷达：贴图实测纯黑实心圆 c=(321,345)，半径 30px
+  const lx=(ICX-321)*PX, ly=(ICY-345)*PX;
+  const mLidar=new THREE.MeshPhysicalMaterial({color:0x06080c,metalness:.35,roughness:.06,clearcoat:1,clearcoatRoughness:.02});
+  camera3.add(cylZ(30*PX,PD*.08,mDarkRing,lx,ly,PD*.04));
+  camera3.add(lensDisc(27*PX,mLidar,lx,ly,-PD*.045));
+}
+// home：camera3 组的 home 就是「世界/局部 z 原点」——组内各层的 z 都叠加在它上面。
+// 目标（都以世界=局部坐标算，root 会统一 ×2.2）：
+//   后盖玻璃外表面  -PD*.345-PD*.15 = -PD*.495  (-4.08mm)
+//   相机岛外表面    -PD*.495-.0015  = -5.59mm（真机岛比后盖高出约 1.5mm）
+// 2026-11-03 修正：旧版 home = 岛面-0.0020+0.00038，导致 3D 底座整体悬空浮在
+//   岛面外 1.6mm（和背盖凸台形成双层台阶）。现 home 直接 = 岛面：
+//   斜壁底(z=+0.0017)埋进玻璃面、平顶盖(z=0)与岛面齐平、镜圈 torus(z=0) 管径凸出 0.38mm。
+//   11:29 修正"偏左"：home (x,y) 由手调的 (.0138,.0530) 改为按贴图岛中心像素 (260.5,215) 反算的
+//   (0.01134,0.05253) → 正好压在印刷岛中心上，消除整体左偏。
+//   15:0x 二次修正：印刷岛暗区重测为 x[62,436]（旧 x[83,438] 把主摄暗圆左缘当岛缘），
+//   岛中心 px(249,215) → home (.0124,.0525)。同批把 LENS 中心对到印刷暗圆圆心、
+//   凸台/斜壁收回官方宽度 374px——三镜、岛、凸台、印刷层四层同心。
+const ISLAND_FACE=-PD*.495-.0015;      // 岛面
+reg('camera3',camera3,.0124,.0525,ISLAND_FACE, .0124,.0525,-.245);
+
+// ============ 7 Face ID ============
+const faceid=new THREE.Group();
+{
+  // 柔性 PCB 底板（矩形，承载三个子模组与排线座）
+  faceid.add(rbox(PW*.32,PH*.1,PD*.18,mBoard,0,0,0,.0015));
+  const fmod=(x,y,r,len)=>{                          // 单个子模组：屏蔽罩 + 透镜（真机单模组约 6×5mm）
+    faceid.add(rbox(.0062,.0052,PD*.20,mShield,x,y,PD*.12,.0005));
+    faceid.add(cylZ(r,len,mLens,x,y,PD*.24));
+  };
+  fmod(-.0075,.0018,.0014,PD*.28); // 点阵投影器（左）
+  fmod(0,-.0022,.0011,PD*.28);     // 红外相机（中）
+  fmod(.0075,.0018,.0011,PD*.28);  // 泛光照明（右）
+  faceid.add(box(.004,.002,PD*.06,mBlack,.0105,-.002,PD*.08)); // 排线座
+}
+reg('faceid',faceid,0,.062,PD*.05, 0,.062,.15);
+
+// ============ 8 Taptic Engine（圆角马达壳 + 铜质量块 + 排线座） ============
+const taptic=new THREE.Group();
+{
+  taptic.add(rbox(PW*.17,PH*.115,PD*.34,mMetal,0,0,0,.003));          // 金属外壳
+  taptic.add(rbox(PW*.115,PH*.072,PD*.20,mCopper,.003,0,PD*.05,.002)); // 铜质量块
+  taptic.add(box(PW*.05,PH*.02,PD*.05,mBlack,-PW*.052,PH*.032,PD*.11));// 排线座
+  taptic.add(box(PW*.10,PH*.006,PD*.03,mBlack,0,-PH*.052,PD*.12));     // 底部弹片
+  // 音圈（线性马达核心）：铜线圈骨架 + 绕组（收进壳体宽度内，微凸出正面）
+  taptic.add(torus(PW*.042,.0013,mCopper,0,0,PD*.10));
+  for(let i=0;i<24;i++){const a=i/24*Math.PI*2;taptic.add(box(.0005,.0016,PD*.10,mCopper,Math.cos(a)*PW*.042,Math.sin(a)*PW*.042,PD*.10));}
+  // 弹簧钢片（振动簧片，两端固定）
+  taptic.add(rbox(PW*.13,PH*.09,PD*.05,mMetal,0,0,PD*.04,.001));
+  // 四角固定螺丝（壳体 12×16.9mm，螺丝应在壳缘内）
+  [[-.0048,.0068],[.0048,.0068],[-.0048,-.0068],[.0048,-.0068]].forEach(([x,y])=>screw(taptic,x,y,PD*.12,1,.0009));
+}
+reg('taptic',taptic,.02,-.062,0, .03,-.062,-.07);
+
+// ============ 9 扬声器（金属腔体 + 网孔 + 音圈） ============
+const speaker=new THREE.Group();
+{
+  speaker.add(rbox(PW*.3,PH*.12,PD*.25,mMetal,0,0,0,.001));
+  speaker.add(rbox(PW*.24,PH*.06,PD*.02,mMetal,0,0,PD*.135,.0005));  // 出音网板（薄）
+  for(let i=0;i<7;i++)for(let j=0;j<3;j++)                            // 出音孔阵列
+    speaker.add(cylZ(.0009,PD*.06,mBlack,(i-3)*.034,(j-1)*.018,PD*.12));
+  speaker.add(cylZ(.0032,.0012,mCopper,0,.03,PD*.13));  // 音圈
+  speaker.add(box(PW*.05,PH*.012,PD*.04,mBlack,PW*.11,-.03,PD*.1));
+}
+reg('speaker',speaker,-.02,-.062,0, -.035,-.062,-.07);
+
+// ============ 10 MagSafe（密绕线圈盘 + 立体铜圈 + 磁铁环） ============
+const magsafe=new THREE.Group();
+{
+  const mCoil=new THREE.MeshStandardMaterial({map:txCoil,metalness:.7,roughness:.58,envMapIntensity:.45});
+  // 黑色隔磁/石墨背衬（线圈下方，挡住环境反射，避免整盘发亮）
+  magsafe.add(cylZ(.0285,.0012,mBlack,0,0,-.0018));
+  magsafe.add(cylZ(.024,.0016,mCoil,0,0,0));                                 // 线圈盘（密绕纹）
+  [.011,.015,.019].forEach(r=>magsafe.add(torus(r,.0013,mCopperDark,0,0,.0012)));// 立体铜圈
+  for(let i=0;i<12;i++){                                                     // 外圈磁铁
+    const a=i/12*Math.PI*2;
+    const mg=box(.0038,.0038,.0012,mMetal,Math.cos(a)*.0225,Math.sin(a)*.0225,0);
+    mg.rotation.z=a;magsafe.add(mg);
+  }
+  magsafe.add(cylZ(.004,.0016,mMetal,0,0,.0014));                            // 中心对位点
+  magsafe.add(rbox(.01,.0035,.001,mCopper,.0275,-.006,0,.0004));             // FPC 引出线
+  magsafe.add(rbox(.006,.003,.001,mBlack,.034,-.006,0,.0004));               // 引线端连接器
+}
+reg('magsafe',magsafe,0,0,-PD*.4, 0,0,-.095);
+
+// ============ 11 SIM 卡托（带取卡孔与金触点） ============
+const sim=new THREE.Group();
+{
+  sim.add(rbox(PW*.12,PH*.16,PD*.1,mMetal,0,0,0,.001));
+  sim.add(cylZ(.0008,PD*.12,mBlack,PW*.038,PH*.055,0));     // 取卡针孔
+  sim.add(box(.0025,.009,.0006,mGold,0,-.002,PD*.055));     // 金触点
+}
+reg('sim',sim,-.031,-.02,0, -.07,-.02,-.055);
+
+// ============ 12-15 排线（加厚 + 两端连接器） ============
+function makeCable(defs){
+  const grp=new THREE.Group();
+  defs.forEach(s=>{
+    // 每段放进一个随段旋转的 sub，段内各元件相对段中心对齐（含旋转段）
+    const sub=new THREE.Group();
+    sub.position.set(s[1],s[2],s[3]);
+    if(s[4])sub.rotation.x=s[4];if(s[5])sub.rotation.y=s[5];if(s[6])sub.rotation.z=s[6];
+    sub.add(rbox(s[0],.005,.0026,mCable,0,0,0,.0007));            // FPC 软板
+    sub.add(box(.006,.009,.004,mBlack,-s[0]/2,0,0));              // 左连接器
+    sub.add(box(.006,.009,.004,mBlack, s[0]/2,0,0));              // 右连接器
+    sub.add(box(.0066,.010,.0044,mShield,-s[0]/2,0,PD*.003,.0004));// 左 EMI 屏蔽盖
+    sub.add(box(.0066,.010,.0044,mShield, s[0]/2,0,PD*.003,.0004));// 右 EMI 屏蔽盖
+    sub.add(box(.0022,.006,.0018,mGold, s[0]/2-.0035,0,0));       // 金手指端子
+    sub.add(box(s[0]*.9,.0009,.0006,mGold,0,0,PD*.0016));         // FPC 走线
+    grp.add(sub);
+  });
+  return grp;
+}
+const cScreen=makeCable([[.038,0,0,PD*.35,0,.12,0],[.03,-.002,0,PD*.42,0,-.08,0]]);
+reg('cableScreen',cScreen,0,-.062,PD*.2, .04,-.07,.16);
+const cBat=makeCable([[.036,0,0,PD*.2,0,.06,0],[.03,.002,0,PD*.26,0,-.06,0]]);
+reg('cableBat',cBat,-.02,-.03,-.002, -.075,-.03,-.04);
+const cCam=makeCable([[.036,0,0,PD*.2,0,.05,0],[.03,0,0,PD*.26,0,-.05,0],[.024,.014,0,PD*.3,0,.6,0]]);
+reg('cableCam',cCam,.014,.05,-.002, .08,.05,-.11);
+const cUsb=makeCable([[.036,0,0,PD*.2,0,.05,0],[.03,0,0,PD*.26,0,-.05,0]]);
+reg('cableUsb',cUsb,0,-.068,-.002, 0,-.105,-.09);
+// 传感器排线（顶部，听筒/前摄电路）
+const cSensor=makeCable([[.03,0,0,PD*.3,0,.1,0],[.024,0,0,PD*.36,0,-.08,0]]);
+reg('cableSensor',cSensor,0,.062,PD*.25, 0,.068,.18);
+// 天线排线（沿左侧边框竖走）
+const cAnt=makeCable([[.055,0,0,0,0,0,Math.PI/2],[.03,0,0,0,0,-.9,0]]);
+reg('cableAnt',cAnt,-.026,.015,PD*.15, -.07,.015,-.05);
+
+// ============ USB-C 接口 / 听筒 / 前摄 / 副板 / 石墨散热片 ============
+const usbPort=new THREE.Group();
+{
+  usbPort.add(rbox(.0095,.005,PD*.7,mMetal,0,0,0,.0008));
+  usbPort.add(box(.007,.0026,PD*.4,mBlack,0,0,0));
+  // 24 针金属触点（USB-C 对称引脚）：2 排 × 12，沿接口宽度方向排布在端面
+  for(let r=0;r<2;r++)for(let i=0;i<12;i++)
+    usbPort.add(box(.0006,.0006,.001,mGold,(i-5.5)*.0007,(r-.5)*.0016,PD*.30));
+  // 中央舌片（USB-C 内部塑料舌头）
+  const mTongue=new THREE.MeshStandardMaterial({color:0xdedede,metalness:.1,roughness:.6});
+  usbPort.add(box(.0075,.0028,.022,mTongue,0,0,PD*.22));
+}
+reg('usbPort',usbPort,0,-PH/2+.005,0, 0,-.108,-.1);
+
+const earpiece=new THREE.Group();
+{
+  earpiece.add(rbox(.028,.0045,PD*.35,mBlack,0,0,0,.0012));
+  earpiece.add(rbox(.026,.002,PD*.04,mMetal,0,0,PD*.12,.0004));  // 网板
+  for(let i=0;i<9;i++) earpiece.add(cylZ(.0007,PD*.05,mBlack,(i-4)*.0030,0,PD*.10));  // 听筒孔阵列
+}
+reg('earpiece',earpiece,0,PH/2-.009,PD*.1, 0,.078,.14);
+
+const frontCam=new THREE.Group();
+{
+  frontCam.add(cylZ(.005,PD*.6,mCam,0,0,0));
+  frontCam.add(cylZ(.0038,PD*.25,mLens,0,0,PD*.18));
+}
+reg('frontCam',frontCam,-.006,PH/2-.013,0, -.05,.08,.12);
+
+const subBoard=new THREE.Group();
+{
+  subBoard.add(slab(PW*.40,PH*.17,PD*.34,mBoard,.003));
+  // 屏蔽罩 + 板对板连接器 + 贴片元件 + 麦克风
+  subBoard.add(rbox(PW*.22,PH*.085,PD*.10,mMetal,0,.007,PD*.15,.001));
+  subBoard.add(box(.012,.004,PD*.07,mGold,-.010,-.004,PD*.14));
+  subBoard.add(box(.008,.003,PD*.06,mBlack,.010,-.005,PD*.14));
+  for(let i=0;i<8;i++)subBoard.add(box(.0018,.0012,PD*.04,mBlack,-.012+i*.0036,-.010,PD*.13));
+  subBoard.add(cylZ(.0030,PD*.30,mBlack,0,-.020,0));
+}
+reg('subBoard',subBoard,.02,-.048,0, .065,-.048,-.075);
+
+const graphite=new THREE.Group();
+{
+  graphite.add(slab(PW*.6,PH*.34,PD*.06,mGraphite,.004));
+}
+reg('graphite',graphite,0,.03,-PD*.35, 0,.03,-.042);
+parts.forEach(p=>{if(p.id!=="frame"&&p.id!=="screen"&&p.id!=="backglass"&&p.id!=="camera3")p.group.visible=false;});
+
+const META={
+  frame:{en:'钛金属中框',func:'整机结构骨架，所有元件的承载中框。',spec:'钛合金 Grade 5 · 重约 187g · IP68 防水',princ:'航天级钛合金，比不锈钢更轻更强。',repair:'从底部两颗五角螺丝开始；边框薄，撬动易变形。',tools:'P2 五角螺丝刀 · 吸盘 · 塑料撬片',step:'拆机起点：卸下底部两颗五角螺丝，先分离屏幕与后盖。',level:'难 · 约 40 分钟'},
+  backglass:{en:'后盖玻璃',func:'后盖玻璃面板，含相机开孔与 MagSafe 定位。',spec:'康宁玻璃 · 磨砂质感 · 可单独更换',princ:'15 Pro 起后盖改为独立可拆结构。',repair:'加热软化胶水后吸盘拉起，勿划伤内侧 NFC 线圈。',tools:'加热垫 · 吸盘 · 撬片',step:'沿边框加热软化胶层，吸盘拉起后划开四周。',level:'中 · 约 30 分钟'},
+  screen:{en:'屏幕总成',func:'显示与触控总成，正面核心交互面。',spec:'6.1" OLED · 2556×1179 · 120Hz ProMotion',princ:'LTPO OLED 可变刷新率，峰值亮度 2000nit。',repair:'排线脆弱，掀起角度勿超 90°。',tools:'P2 · 吸盘 · 撬片',step:'卸底部两螺丝 → 加热边缘 → 右侧掀开，排线在左侧，角度勿超 90°。',level:'中 · 约 25 分钟'},
+  board:{en:'主板 · A17 Pro',func:'整机大脑，处理所有计算任务。',spec:'A17 Pro 3nm · 6 核 · 8GB RAM',princ:'双层主板夹心结构，芯片与内存叠放。',repair:'拆主板先断开全部排线。',tools:'Y000 三翼 · PH000 十字 · 撬棒',step:'最后拆：先断电池排线，再逐条断开屏幕 / 相机 / 尾插排线。',level:'难 · 约 60 分钟'},
+  battery:{en:'电池',func:'供能核心，锂离子电池。',spec:'3274 mAh · Li-ion · 不可拆卸',princ:'锂离子在正负极间迁移完成充放电。',repair:'易撕胶固定，勿刺破以免起火。',tools:'撬棒 · 解胶剂',step:'断开电池排线后拉起四条粘性拉条，禁用金属工具硬撬。',level:'中 · 约 20 分钟'},
+  camera3:{en:'后置三摄',func:'后置三摄模组，影像系统核心。',spec:'48MP 主摄 + 12MP 超广角 + 12MP 长焦(3x)',princ:'多镜头协作 + 计算摄影合成图像。',repair:'模组由三颗菲利浦螺丝固定。',tools:'Y000 · PH000 · 撬棒',step:'卸下模组固定螺丝 → 断开两条 FPC → 整体取出。',level:'中 · 约 20 分钟'},
+  faceid:{en:'Face ID 模组',func:'人脸识别与前置影像。',spec:'结构光点阵投影 · 12MP 前置',princ:'投射 3 万点红外点阵构建面部模型。',repair:'与原主板配对绑定，更换需官方校准。',tools:'Y000 · 镊子',step:'点阵投影器与主板配对绑定，不可与其他机器零件混用。',level:'难 · 需官方校准'},
+  taptic:{en:'Taptic Engine',func:'线性马达，提供触感反馈。',spec:'线性共振马达 · 无机械偏心',princ:'电磁驱动质量块线性震动。',repair:'螺丝固定于底部，与扬声器共排线。',tools:'PH000 · 撬棒',step:'底部螺丝固定，与扬声器共排线，先断排线再拆。',level:'易 · 约 10 分钟'},
+  speaker:{en:'扬声器',func:'底部扬声器，输出音频。',spec:'立体声 · 与听筒组成双声道',princ:'电磁线圈驱动振膜发声。',repair:'底部七颗菲利浦螺丝。',tools:'PH000',step:'底部螺丝固定，拆下后可见防尘网与密封泡棉。',level:'易 · 约 10 分钟'},
+  magsafe:{en:'MagSafe 线圈',func:'无线充电与磁吸配件定位。',spec:'15W 无线充电 · Qi2 兼容',princ:'线圈感应磁场实现无线输电。',repair:'藏于后盖玻璃下。',tools:'加热垫 · 撬片',step:'藏于后盖内侧，随后盖一同拆下，勿撕断 NFC 排线。',level:'中 · 约 15 分钟'},
+  sim:{en:'SIM 卡托',func:'实体 SIM 卡承载卡托。',spec:'Nano-SIM · 支持 eSIM',princ:'卡槽读取 SIM 身份信息接入网络。',repair:'用卡针顶出。',tools:'取卡针',step:'关机后卡针顶出，托架不分正反但勿暴力推入。',level:'易 · 1 分钟'},
+  cableScreen:{en:'屏幕排线',func:'连接屏幕与主板的数据排线。',spec:'柔性 FPC · 多通道',princ:'柔性电路板传输显示与触控信号。',repair:'扣合前确认正反。',tools:'塑料撬棒 · 镊子',step:'屏幕掀起后第一组要断开的排线，卡扣向上翻起。',level:'易 · 约 5 分钟'},
+  cableBat:{en:'电池排线',func:'电池与主板的供电排线。',spec:'柔性 FPC · 供电通道',princ:'传递电流与电池管理信号。',repair:'维修第一步先断开。',tools:'塑料撬棒',step:'拆机第一步就断开，避免带电操作损伤主板。',level:'易 · 约 3 分钟'},
+  cableCam:{en:'相机排线',func:'三摄与主板的数据排线。',spec:'柔性 FPC · 高速数据',princ:'高速传输影像数据。',repair:'卡扣细小，用塑料撬棒轻拨。',tools:'塑料撬棒 · 镊子',step:'卡扣细小，撬棒轻拨；装回时确认完全压合。',level:'易 · 约 5 分钟'},
+  cableUsb:{en:'USB-C 排线',func:'充电口与主板连接排线。',spec:'USB-C 3.2 Gen2 · 集成麦克风',princ:'传输充电电流与数据。',repair:'充电口整套更换。',tools:'PH000 · 撬棒',step:'与尾插一体，拆尾插时连同排线整体取下。',level:'中 · 约 15 分钟'},
+  cableSensor:{en:'传感器排线',func:'连接听筒、前置传感器与主板。',spec:'柔性 FPC · 多通道',princ:'传输音频与环境光/距离信号。',repair:'与屏幕排线相邻，拆装勿混淆。',tools:'镊子 · 撬棒',step:'贴着屏幕排线走线，拆装按原位卡回，勿拉扯。',level:'易 · 约 5 分钟'},
+  cableAnt:{en:'天线排线',func:'边框天线与主板的信号连接。',spec:'同轴微带 · Wi-Fi/蜂窝',princ:'馈入边框天线向外辐射信号。',repair:'卡扣极细，勿硬撬。',tools:'镊子 · 撬棒',step:'同轴卡扣极细，垂直向上拔起，勿斜撬。',level:'易 · 约 5 分钟'},
+  usbPort:{en:'USB-C 接口',func:'充电与数据的物理接口。',spec:'USB-C 3.2 Gen2 · 10Gbps',princ:'24 引脚对称设计，正反可插。',repair:'与尾插排线一体更换。',tools:'PH000 · 镊子',step:'与尾插排线一体更换，拆前先断电池。',level:'中 · 约 20 分钟'},
+  earpiece:{en:'听筒',func:'顶部受话器，通话出声。',spec:'立体声双声道之一',princ:'电磁线圈驱动振膜发声。',repair:'与顶部传感器排线相连。',tools:'PH000 · 镊子',step:'位于顶部，与传感器排线相连，拆下屏幕后可见。',level:'易 · 约 8 分钟'},
+  frontCam:{en:'前置摄像头',func:'自拍与 Face ID 辅助影像。',spec:'12MP · ƒ/1.9 · 自动对焦',princ:'与 Face ID 点阵协同完成人脸识别。',repair:'位于灵动岛内，拆下屏幕后可见。',tools:'Y000 · 撬棒',step:'灵动岛内，拆下屏幕后可见，排线与 Face ID 相邻。',level:'中 · 约 12 分钟'},
+  subBoard:{en:'底部副板',func:'集成 USB-C、麦克风与天线触点。',spec:'RF 连接器 ×3',princ:'通过排线与主板互联分担接口功能。',repair:'先断电池再拆。',tools:'PH000 · 撬棒',step:'先断电池，再断三条 RF 连接器与排线。',level:'中 · 约 15 分钟'},
+  graphite:{en:'石墨散热片',func:'均热散出 A17 Pro 的热量。',spec:'石墨烯 · 定向导热',princ:'沿片内方向快速导热摊平热点。',repair:'拆主板后整体揭下。',tools:'镊子',step:'主板拆下后整体揭起，破损可换同规格石墨片。',level:'易 · 约 3 分钟'}
+};
+
+let exploding=false,t=0,dir=0,dragPart=null;
+// 选中/面板/标注三个状态必须在 animate() 首次同步调用之前初始化，否则触发 TDZ 报错令整个模块中断
+let selected=null,partsPanelOpen=false,labelsOn=false,soloPid=null;
+let camGoal=null,camTgtGoal=null;
+function ease(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;}
+function animate(){
+  requestAnimationFrame(animate);
+  if(exploding){
+    t+=dir*0.016;
+    if(dir>0&&t>=1){t=1;exploding=false;setHint('已拆解 · 拖拽旋转查看内部');}
+    if(dir<0&&t<=0){t=0;exploding=false;setHint('点击元件查看说明书');}
+    const k=ease(t);
+    parts.forEach(p=>{
+      if(p===dragPart)return;            // 手动拖拽中的元件不受拆解动画干扰
+      p.group.position.lerpVectors(p.home,p.exploded,k);
+      if(p.id!=="frame"&&p.id!=="screen"&&p.id!=="backglass"&&p.id!=="camera3")p.group.visible=(t>0.02);
+    });
+  }
+  if(camGoal){camera.position.lerp(camGoal,.06);if(camera.position.distanceTo(camGoal)<.01)camGoal=null;}
+  if(camTgtGoal){controls.target.lerp(camTgtGoal,.06);if(controls.target.distanceTo(camTgtGoal)<.005)camTgtGoal=null;}
+  controls.update();
+  if(labelsOn)updateLabels();
+  renderer.render(scene,camera);
+}
+animate();
+// 首帧已渲染，撤掉启动提示；7 秒内没出图则由上面的定时器改成失败提示
+{const _b=document.getElementById('boot');if(_b){_b.classList.add('gone');setTimeout(()=>_b.remove(),600);}}
+
+// ?view=module：直接呈现拆解态并贴近相机模组（供近景检查剖面）
+// ?view=explode：直接呈现完全拆解状态（自测截图用，不做动画）
+if(_q.get('view')==='module'||_q.get('view')==='explode'){t=1;exploding=false;parts.forEach(p=>{p.group.position.copy(p.exploded);if(p.id!=='frame'&&p.id!=='screen'&&p.id!=='backglass'&&p.id!=='camera3')p.group.visible=true;});}
+// 模组对位自检（?dbg=1 时写进标题，可直接核对"内外镜片是否同轴"）
+function modCheck(){
+  const g=parts.find(p=>p.id==='camera3').group;
+  const PXm=camera3.userData.px, IC=camera3.userData.ic;
+  const bad=[];
+  LENS.forEach(([xpx,ypx,rb],i)=>{
+    const wx=(IC[0]-xpx)*PXm, wy=(IC[1]-ypx)*PXm;   // 该镜片在模组局部系的轴心（与 buildLens 保持一致）
+    // 每个网格取几何包围盒中心（含旋转），换算到模组局部系后比对到轴心的偏差
+    const q=new THREE.Quaternion(), s=new THREE.Vector3(), p=new THREE.Vector3();
+    g.traverse(o=>{
+      if(!o.isMesh)return;
+      o.geometry.computeBoundingBox();
+      const c=o.geometry.boundingBox.getCenter(new THREE.Vector3());
+      o.updateWorldMatrix(true,false);
+      const w=c.clone().applyMatrix4(o.matrixWorld);
+      g.matrixWorld.decompose(p,q,s);
+      const l=w.clone().sub(p);
+      const d=Math.hypot(l.x-wx,l.y-wy);
+      // 只统计"应该同轴"的三层：玻璃/铜线圈/VCM 筒/CMOS 基板
+      if(d<.0022 && d>0.00035) bad.push(`L${i}:d=${(d*1000).toFixed(2)}mm`);
+    });
+  });
+  return bad.length? 'MISALIGN '+bad.slice(0,6).join(','):'ALIGN OK';
+}
+// 调试钩子（自测专用）：暴露相机/控制器供 eval 精确对位
+// 自测接口（既有）：再补几个只读探针，用于验证按钮是否真的移动了元件、相机是否到位
+window.__dbg={camera,controls,parts,THREE,camera3,modCheck,
+  get t(){return t}, get selected(){return selected?selected.id:null}, get solo(){return soloPid},
+  meta:META,
+  pos:id=>{const p=parts.find(x=>x.id===id);return p?p.group.position.toArray().map(v=>+v.toFixed(5)):null},
+  home:id=>{const p=parts.find(x=>x.id===id);return p?p.home.toArray().map(v=>+v.toFixed(5)):null},
+  vis:id=>{const p=parts.find(x=>x.id===id);return p?p.group.visible:null},
+  cam:()=>({pos:camera.position.toArray().map(v=>+v.toFixed(3)),tgt:controls.target.toArray().map(v=>+v.toFixed(3)),dist:+camera.position.distanceTo(controls.target).toFixed(3)})};
+// ?only=<id>：只显示指定元件（else 全部隐藏），配合 ?cam/?tgt 拍单件特写
+if(_q.get('only')){const w=_q.get('only');parts.forEach(p=>{p.group.visible=(p.id===w);});const _c=parts.find(p=>p.id===w);if(_c)console.log('ONLY',w,_c.group.position.toArray(),_c.group.visible,_c.group.children.length);}
+// ?iso=1：只留相机模组，单独看模组叠层（自测对位用）
+if(_q.get('iso')){parts.forEach(p=>{p.group.visible=(p.id==='camera3');});}
+// ?dbg=1：把机位/报错写进标题，便于 headless --dump-dom 复核
+if(_q.get('dbg'))setTimeout(()=>{const _b=parts.find(p=>p.id==='battery');document.title='CAM '+camera.position.toArray().map(v=>v.toFixed(3)).join(',')+' | TGT '+controls.target.toArray().map(v=>v.toFixed(3)).join(',')+' | BAT '+_b.group.children.length+':'+_b.group.children.map(c=>c.type+(c.visible?'':'H')).join(',')+' | '+(modCheck?modCheck():'')+' | ERR '+((window.__errs||[]).join(' ; ')||'none');},3500);
+// ?z=1：逐个子网格列出世界 z 范围，排查"谁挡住谁"
+if(_q.get('z'))setTimeout(()=>{
+  const out=[];
+  parts.forEach(p=>{
+    p.group.traverse(o=>{if(o.isMesh){
+      o.updateWorldMatrix(true,false);
+      const bb=new THREE.Box3().setFromObject(o);
+      out.push(`${p.id}.${o.geometry.type}:${bb.min.z.toFixed(4)}/${bb.max.z.toFixed(4)}`);
+    }});
+  });
+  document.title='Z '+out.join(' | ');
+},3500);
+
+document.getElementById('btnExplode').onclick=()=>{dir=1;exploding=true;soloPid=null;camGoal=new THREE.Vector3(.50,.30,.72);setHint('拆解中…');};
+document.getElementById('btnAssemble').onclick=()=>{dir=-1;exploding=true;soloPid=null;camGoal=new THREE.Vector3(0,0,.66);setHint('组装中…');};
+document.getElementById('btnReset').onclick=()=>{
+  exploding=false;t=0;soloPid=null;
+  parts.forEach(p=>{p.group.position.copy(p.home);p.group.rotation.z=0;});
+  controls.target.set(0,0,0);camera.position.set(0,0,.66);controls.update();camGoal=null;camTgtGoal=null;
+  setHint('点击元件查看说明 · 列表可检索定位');
+};
+function setHint(s){document.getElementById('hint').textContent=s;}
+
+const raycaster=new THREE.Raycaster();const pointer=new THREE.Vector2();
+// Line 默认 threshold=1（米）远大于整机 0.15m，描边会全屏误命中，必须压到几乎为 0
+raycaster.params.Line.threshold=0.0002;
+// selected / partsPanelOpen / labelsOn 已提前到 animate() 之前声明
+const dragPlane=new THREE.Plane();
+const _nv=new THREE.Vector3(), _ow=new THREE.Vector3(), _tp=new THREE.Vector3();
+const dragOffset=new THREE.Vector3();   // 拖拽时保持抓取点不动：世界位移 = 命中点→元件中心的偏移
+function setPointer(ev){pointer.x=(ev.clientX/innerWidth)*2-1;pointer.y=-(ev.clientY/innerHeight)*2+1;}
+// 捕获阶段先判断：命中元件则抢事件、禁用轨道旋转、进入手动拖拽；否则放行给 OrbitControls 旋转
+renderer.domElement.addEventListener('pointerdown',ev=>{
+  setPointer(ev);
+  raycaster.setFromCamera(pointer,camera);
+  // 只认「可见元件的实体 mesh」：描边 LineSegments 无 pid、Raycaster 递归又不检查 visible，
+  // 二者都会让 hits[0] 落在无效对象上并吞掉点击 → 先过滤再取第一个有效命中
+  const hits=raycaster.intersectObjects(parts.map(p=>p.group),true).filter(h=>
+    h.object.isMesh && h.object.userData.pid!==undefined && parts[h.object.userData.pid].group.visible);
+  if(!hits.length)return;
+  const pid=hits[0].object.userData.pid;
+  const p=parts[pid];
+  ev.stopPropagation();
+  select(pid);
+  dragPart=p;controls.enabled=false;
+  camera.getWorldDirection(_nv);
+  dragPlane.setFromNormalAndCoplanarPoint(_nv,hits[0].point);
+  p.group.getWorldPosition(_ow);
+  dragOffset.copy(_ow).sub(hits[0].point);
+  try{renderer.domElement.setPointerCapture(ev.pointerId);}catch(e){}
+  setHint('拖拽移动元件 · 松手停在当前位置');
+},true);
+window.addEventListener('pointermove',ev=>{
+  if(!dragPart)return;
+  setPointer(ev);
+  raycaster.setFromCamera(pointer,camera);
+  if(raycaster.ray.intersectPlane(dragPlane,_tp)){
+    _tp.add(dragOffset);
+    dragPart.group.parent.worldToLocal(_tp);   // 世界→root 局部（root 含 ×2.2 缩放）
+    dragPart.group.position.copy(_tp);
+    dragPart.group.visible=true;
+  }
+});
+window.addEventListener('pointerup',ev=>{
+  if(!dragPart)return;
+  try{renderer.domElement.releasePointerCapture(ev.pointerId);}catch(e){}
+  dragPart=null;controls.enabled=true;
+  setHint(selected?'已选中：'+META[selected.id].en+' · 点「详情」看完整说明书':'点击元件查看说明 · 列表可检索定位');
+});
+const selMat=new THREE.LineBasicMaterial({color:0x0a84ff,transparent:true,opacity:.95,depthTest:false});
+let selLines=[];
+function clearSel(){
+  selLines.forEach(l=>{if(l.parent)l.parent.remove(l);l.geometry.dispose();});
+  selLines=[];
+}
+function select(pid){
+  const p=parts[pid];const meta=META[p.id];
+  clearSel();
+  // 选中描边：细线轮廓，不重涂材质（共享材质会串色），也不遮挡原件细节
+  p.group.traverse(o=>{
+    if(o.isMesh&&o.geometry){
+      try{
+        const eg=new THREE.EdgesGeometry(o.geometry,20);
+        const line=new THREE.LineSegments(eg,selMat);
+        line.raycast=()=>{};                    // 描边永不参与拾取（否则吞点击）
+        line.renderOrder=20;o.add(line);selLines.push(line);
+      }catch(e){}
+    }
+  });
+  selected=p;
+  if(partsPanelOpen)markActive(pid);
+  document.getElementById('pName').textContent=meta.en;
+  document.getElementById('pEn').textContent=p.id;
+  document.getElementById('pFunc').textContent=meta.func;
+  document.getElementById('pSpec').textContent=meta.spec;
+  document.getElementById('pPrinc').textContent=meta.princ;
+  document.getElementById('pRepair').textContent=meta.repair;
+  document.getElementById('pTools').textContent=meta.tools;
+  document.getElementById('pStep').textContent=meta.step;
+  document.getElementById('pLevel').textContent=meta.level;
+  const panel=document.getElementById('panel');
+  panel.classList.add('show');
+  setCompact(true);                          // 默认只显示名称+功能，点「详情」再展开
+  // 列表与说明不同时出现，避免两个面板叠起来挡住模型
+  partsPanelOpen=false;
+  document.getElementById('partsPanel').classList.remove('show');
+  setHint('已选中：'+meta.en+' · 点「详情」看完整说明书');
+}
+// 说明卡默认紧凑：只留名称 + 功能摘要 + 「详情」，点开才显示完整字段与操作按钮
+function setCompact(on){
+  const panel=document.getElementById('panel');
+  panel.classList.toggle('compact',on);
+  const more=document.getElementById('pMore');
+  if(more)more.textContent=on?'详情 ▾':'收起 ▴';
+}
+document.getElementById('pMore').onclick=()=>setCompact(!document.getElementById('panel').classList.contains('compact'));
+document.getElementById('panelClose').onclick=()=>document.getElementById('panel').classList.remove('show');
+// 「整机视角」：总是把 target 归零、相机沿当前视线退到能看全机的距离
+// （旧实现只在过近时才动，正常距离下点了毫无反应）
+function resetView(){
+  const eye=camera.position.clone().sub(controls.target);
+  if(eye.lengthSq()<1e-8)eye.set(0,0,1);
+  camTgtGoal=new THREE.Vector3(0,0,0);
+  camGoal=new THREE.Vector3(0,0,0).add(eye.normalize().multiplyScalar(FIT_DIST));
+  setHint('已回到整机视角');
+}
+document.getElementById('pFocus').onclick=resetView;
+// 「单独拆出」：在 原位(home) ↔ 拆解位(exploded) 之间切换。
+// 组装态下内部件 visible=false，移出去若不开 visible 就等于"点了没反应"
+function soloToggle(){
+  if(!selected)return;
+  const pid=parts.indexOf(selected), meta=META[selected.id];
+  let msg;
+  if(soloPid===pid){
+    selected.group.position.copy(selected.home);
+    if(t<0.02 && !['frame','screen','backglass','camera3'].includes(selected.id)) selected.group.visible=false;
+    soloPid=null;
+    msg='已放回原位：'+meta.en;
+  }else{
+    selected.group.position.copy(selected.exploded);
+    selected.group.visible=true;
+    soloPid=pid;
+    msg='已单独拆出：'+meta.en+' · 再点一次放回';
+  }
+  focusSelected();            // 先定位（它会写 hint）
+  setHint(msg);               // 再覆盖成动作结果，否则提示停在"已定位"
+}
+document.getElementById('pSolo').onclick=soloToggle;
+document.getElementById('pReset').onclick=()=>{
+  if(!selected)return;
+  const moved=selected.group.position.distanceTo(selected.home)>1e-6;
+  selected.group.position.copy(selected.home);
+  if(soloPid===parts.indexOf(selected))soloPid=null;
+  if(t<0.02 && !['frame','screen','backglass','camera3'].includes(selected.id)) selected.group.visible=false;
+  setHint(moved?'已复位：'+META[selected.id].en:META[selected.id].en+' 已在原位');
+};
+
+/* ===== 阶段3：元件识别体系（列表/搜索 + 标注引线） ===== */
+const METAKEYS=parts.map(p=>p.id);
+const partsListEl=document.getElementById('partsList');
+const searchInput=document.getElementById('searchInput');
+function markActive(pid){
+  [...partsListEl.children].forEach(el=>el.classList.toggle('active',el.dataset.pid===String(pid)));
+}
+function buildPartsList(filter=''){
+  partsListEl.innerHTML='';
+  METAKEYS.forEach((id,i)=>{
+    const meta=META[id];
+    if(filter&&!(meta.en+id).toLowerCase().includes(filter.toLowerCase()))return;
+    const el=document.createElement('div');
+    el.className='partItem';el.dataset.pid=i;
+    el.innerHTML='<span>'+meta.en+'</span><span>'+id+'</span>';
+    el.onclick=()=>{select(i);focusSelected();};
+    partsListEl.appendChild(el);
+  });
+  if(selected)markActive(parts.indexOf(selected));
+}
+// 温和定位：目标只向元件偏 30%、相机距离不小于 FIT_DIST，整机始终留在画面里
+const FIT_DIST=0.66;   // 视野高度 ≈ 2*0.66*tan(21°) ≈ 0.51m > 整机 0.32m
+function focusSelected(){
+  if(!selected)return;
+  const p=selected.group.getWorldPosition(new THREE.Vector3());
+  camTgtGoal=new THREE.Vector3().copy(controls.target).lerp(p,0.30);
+  const eye=camera.position.clone().sub(controls.target);
+  const d=Math.max(FIT_DIST,eye.length()*0.88);
+  camGoal=camTgtGoal.clone().add(eye.normalize().multiplyScalar(d));
+  setHint('已定位：'+META[selected.id].en+' · 整机保持可见');
+}
+buildPartsList();
+searchInput.addEventListener('input',()=>buildPartsList(searchInput.value.trim()));
+document.getElementById('btnParts').onclick=()=>{
+  partsPanelOpen=!partsPanelOpen;
+  document.getElementById('partsPanel').classList.toggle('show',partsPanelOpen);
+  if(partsPanelOpen)document.getElementById('panel').classList.remove('show'); // 与说明卡互斥，不同时占屏
+};
+// 标注引线
+const labelLayer=document.getElementById('labels');
+const leaderSvg=document.getElementById('leaders');
+const labelEls={};
+function buildLabels(){
+  Object.keys(labelEls).forEach(k=>{labelEls[k].div.remove();labelEls[k].line.remove();});
+  parts.forEach(p=>{
+    const div=document.createElement('div');div.className='label';div.textContent=META[p.id].en;
+    labelLayer.appendChild(div);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('stroke','#0a84ff');line.setAttribute('stroke-width','1');line.setAttribute('stroke-opacity','.55');
+    leaderSvg.appendChild(line);
+    labelEls[p.id]={div,line};
+  });
+}
+buildLabels();
+const _c=new THREE.Vector3(),_aw=new THREE.Vector3();
+function updateLabels(){
+  const W=innerWidth,H=innerHeight;
+  const TOP=64, BOT=H-96, HGT=22;        // 安全区：避开顶部标题与底部 HUD
+  _c.set(0,0,0).project(camera);
+  const cx=(_c.x*.5+.5)*W, cy=(-_c.y*.5+.5)*H;
+  const items=[];
+  parts.forEach(p=>{
+    const ent=labelEls[p.id];if(!ent)return;
+    if(!p.group.visible){ent.div.style.display='none';ent.line.style.display='none';return;}
+    const bb=new THREE.Box3().setFromObject(p.group);
+    if(bb.isEmpty()){ent.div.style.display='none';ent.line.style.display='none';return;}
+    bb.getCenter(_aw);_aw.project(camera);
+    const ax=(_aw.x*.5+.5)*W, ay=(-_aw.y*.5+.5)*H;
+    // 元件投影跑出屏幕就不标，否则引线会横穿整屏（截图里那条超长竖线的来源）
+    if(ax<-30||ax>W+30||ay<-30||ay>H+30){ent.div.style.display='none';ent.line.style.display='none';return;}
+    let dx=ax-cx, dy=ay-cy; const len=Math.hypot(dx,dy)||1; dx/=len;dy/=len;
+    let lx=ax+dx*74, ly=ay+dy*74;
+    const hw=(META[p.id].en.length*12+18)/2;   // 标签半宽估算，避免出屏
+    lx=Math.max(hw+8,Math.min(W-hw-8,lx));
+    items.push({ent,ax,ay,lx,ly,hw});
+  });
+  // 垂直避让：按 y 排序，冲突就顺延一行；位移上限 70px，宁可轻微重叠也不要长引线
+  items.sort((a,b)=>a.ly-b.ly);
+  const placed=[];
+  items.forEach(it=>{
+    const y0=Math.max(TOP,Math.min(BOT,it.ly));
+    let y=y0;
+    for(let guard=0;guard<8;guard++){
+      const clash=placed.find(q=>Math.abs(q.y-y)<HGT && Math.abs(q.x-it.lx)<q.hw+it.hw);
+      if(!clash)break;
+      const ny=clash.y+HGT+2;
+      if(ny-y0>70||ny>BOT)break;
+      y=ny;
+    }
+    y=Math.max(TOP,Math.min(BOT,y));
+    placed.push({x:it.lx,y,hw:it.hw});
+    it.ent.div.style.display=''; it.ent.div.style.left=it.lx+'px'; it.ent.div.style.top=y+'px';
+    it.ent.line.style.display='';
+    it.ent.line.setAttribute('x1',it.ax); it.ent.line.setAttribute('y1',it.ay);
+    it.ent.line.setAttribute('x2',it.lx); it.ent.line.setAttribute('y2',y);
+  });
+}
+document.getElementById('btnLabels').onclick=()=>{
+  labelsOn=!labelsOn;
+  labelLayer.style.display=labelsOn?'block':'none';
+  leaderSvg.style.display=labelsOn?'block':'none';
+  if(labelsOn)updateLabels();
+};
+</script>
+</body>
+</html>
