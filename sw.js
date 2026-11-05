@@ -1,4 +1,4 @@
-// iPhone 15 Pro 动态拆解 · Service Worker (v8)
+// iPhone 15 Pro 动态拆解 · Service Worker (v9)
 // 策略：
 //  - 安装时「逐个」预缓存（Promise.allSettled 容错），单个大文件失败不再拖垮整次安装
 //  - 导航请求 NETWORK-FIRST：联网取最新，离线回退缓存
@@ -7,7 +7,9 @@
 // v8 修复：① addAll 原子失败 → 手机上新版 SW 装不上、还停在 CDN 旧版 → 离线白屏
 //          ② 匹配忽略查询参数（?v=5 / ?t=时间戳 不会导致 miss）
 //          ③ activate 后自检补装缺失项
-const CACHE = 'iphone15pro-v8';
+// v9：贴图改为 WebP（textures.js 2090KB -> 258KB），首次加载/首次安装大幅提速；
+//     缓存名同步 bump，避免老客户端继续吃 v8 里的 PNG 贴图
+const CACHE = 'iphone15pro-v9';
 // 关键壳：缺一个都算装得不完整，但不会因此中断其它文件的缓存
 const CORE = [
   './', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'
@@ -18,7 +20,7 @@ const LIBS = [
   './vendor/addons/controls/OrbitControls.js',
   './vendor/addons/geometries/RoundedBoxGeometry.js',
   './vendor/addons/environments/RoomEnvironment.js',
-  './textures.js?v=5'
+  './textures.js?v=6'
 ];
 const ALL = [...CORE, ...LIBS];
 
